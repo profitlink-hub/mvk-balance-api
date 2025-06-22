@@ -5,7 +5,57 @@ const AuthMiddleware = require('../middlewares/AuthMiddleware')
 const router = express.Router()
 const authController = new AuthController()
 
-// POST /auth/login - Autenticar cliente (não requer auth prévia)
+/**
+ * @swagger
+ * /auth/login:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Autenticar cliente
+ *     description: Autentica um cliente usando CLIENT_ID e CLIENT_SECRET
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - clientId
+ *               - clientSecret
+ *             properties:
+ *               clientId:
+ *                 type: string
+ *                 description: ID do cliente
+ *                 example: arduino_client_001
+ *               clientSecret:
+ *                 type: string
+ *                 description: Segredo do cliente
+ *                 example: secret_arduino_2023
+ *     responses:
+ *       200:
+ *         description: Autenticação realizada com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/Client'
+ *       400:
+ *         description: Dados inválidos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Credenciais inválidas
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 router.post('/login', (req, res) => {
   authController.login(req, res)
 })
@@ -24,19 +74,140 @@ router.post('/validate', (req, res) => {
   authController.validateAuth(req, res)
 })
 
-// GET /auth/me - Obter informações do cliente autenticado
+/**
+ * @swagger
+ * /auth/me:
+ *   get:
+ *     tags: [Auth]
+ *     summary: Obter informações do cliente autenticado
+ *     description: Retorna informações do cliente atualmente autenticado
+ *     security:
+ *       - ClientAuth: []
+ *         ClientSecret: []
+ *     responses:
+ *       200:
+ *         description: Informações do cliente obtidas com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/Client'
+ *       401:
+ *         description: Não autenticado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 router.get('/me', (req, res) => {
-  authController.getMe(req, res)
+  authController.getCurrentClient(req, res)
 })
 
 // Rotas de gerenciamento de clientes (podem requerer privilégios especiais)
 
-// POST /auth/clients - Criar novo cliente
+/**
+ * @swagger
+ * /auth/clients:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Criar novo cliente
+ *     description: Cria um novo cliente no sistema
+ *     security:
+ *       - ClientAuth: []
+ *         ClientSecret: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Nome do cliente
+ *                 example: Novo Cliente
+ *               clientId:
+ *                 type: string
+ *                 description: ID personalizado (opcional, será gerado se não fornecido)
+ *                 example: custom_client_001
+ *               clientSecret:
+ *                 type: string
+ *                 description: Segredo personalizado (opcional, será gerado se não fornecido)
+ *                 example: custom_secret_2023
+ *               isActive:
+ *                 type: boolean
+ *                 description: Status ativo do cliente
+ *                 default: true
+ *                 example: true
+ *     responses:
+ *       201:
+ *         description: Cliente criado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/Client'
+ *       400:
+ *         description: Dados inválidos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       409:
+ *         description: Cliente já existe
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 router.post('/clients', (req, res) => {
   authController.createClient(req, res)
 })
 
-// GET /auth/clients - Listar todos os clientes
+/**
+ * @swagger
+ * /auth/clients:
+ *   get:
+ *     tags: [Auth]
+ *     summary: Listar todos os clientes
+ *     description: Retorna lista de todos os clientes cadastrados
+ *     security:
+ *       - ClientAuth: []
+ *         ClientSecret: []
+ *     responses:
+ *       200:
+ *         description: Lista de clientes obtida com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Client'
+ *                     total:
+ *                       type: integer
+ *                       description: Total de clientes
+ *       401:
+ *         description: Não autenticado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 router.get('/clients', (req, res) => {
   authController.getAllClients(req, res)
 })

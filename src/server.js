@@ -2,9 +2,14 @@ const express = require('express')
 const cors = require('cors')
 const helmet = require('helmet')
 const rateLimit = require('express-rate-limit')
+const swaggerUi = require('swagger-ui-express')
+const swaggerSpec = require('./swagger/swagger.config')
 
 // Importar middlewares
 const GeneralMiddleware = require('./middlewares/GeneralMiddleware')
+
+// Importar configuração do banco
+const supabaseConfig = require('./infra/database/supabase.config')
 
 // Importar rotas
 const ProductRoutes = require('./routes/ProductRoutes')
@@ -19,6 +24,35 @@ class Server {
     this.setupMiddlewares()
     this.setupRoutes()
     this.setupErrorHandling()
+  }
+
+  // Inicializar banco de dados
+  async initializeDatabase() {
+    try {
+      console.log('🔌 Inicializando conexão com Supabase...')
+      const connected = await supabaseConfig.initialize()
+      
+      if (connected) {
+        console.log('✅ Conectado ao Supabase')
+        
+        // Criar tabelas se necessário
+        const tablesCreated = await supabaseConfig.createTables()
+        if (tablesCreated) {
+          console.log('✅ Tabelas verificadas/criadas com sucesso')
+        }
+      } else {
+        console.log('⚠️  Continuando em modo de desenvolvimento (sem Supabase)')
+        console.log('💡 Para conectar ao Supabase, configure as variáveis:')
+        console.log('   - SUPABASE_PASSWORD: Senha do banco')
+        console.log('   - SUPABASE_ANON_KEY: Chave anônima (opcional)')
+      }
+      
+      return connected
+    } catch (error) {
+      console.error('❌ Erro ao inicializar banco de dados:', error.message)
+      console.log('⚠️  Continuando em modo de desenvolvimento...')
+      return false
+    }
   }
 
   setupMiddlewares() {
@@ -52,11 +86,145 @@ class Server {
     this.app.use(GeneralMiddleware.validateBodySize(5120)) // 5MB
     this.app.use(GeneralMiddleware.timeout(30)) // 30 segundos
     this.app.use(GeneralMiddleware.addSystemInfo())
+    
+    /**
+     * @swagger
+     * /health:
+     *   get:
+     *     tags: [System]
+     *     summary: Health Check
+     *     description: Verifica o status de saúde da API e retorna informações do sistema
+     *     security: []
+     *     responses:
+     *       200:
+     *         description: API funcionando corretamente
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 success:
+     *                   type: boolean
+     *                   example: true
+     *                 status:
+     *                   type: string
+     *                   example: healthy
+     *                 timestamp:
+     *                   type: string
+     *                   format: date-time
+     *                 uptime:
+     *                   type: number
+     *                   description: Tempo ativo do processo em segundos
+     *                   example: 3600.5
+     *                 memory:
+     *                   type: object
+     *                   properties:
+     *                     rss:
+     *                       type: integer
+     *                       description: Memória residente em bytes
+     *                     heapTotal:
+     *                       type: integer
+     *                       description: Total de heap em bytes
+     *                     heapUsed:
+     *                       type: integer
+     *                       description: Heap usado em bytes
+     *                     external:
+     *                       type: integer
+     *                       description: Memória externa em bytes
+     *                     arrayBuffers:
+     *                       type: integer
+     *                       description: Array buffers em bytes
+     *                 version:
+     *                   type: string
+     *                   example: 1.0.0
+     *                 service:
+     *                   type: string
+     *                   example: mvk-balance-api
+     */
     this.app.use(GeneralMiddleware.healthCheck())
   }
 
   setupRoutes() {
-    // Rota raiz
+    // Swagger Documentation
+    this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+      customCss: '.swagger-ui .topbar { display: none }',
+      customSiteTitle: 'MVK Balance API - Documentação',
+      swaggerOptions: {
+        persistAuthorization: true,
+        displayRequestDuration: true,
+        filter: true,
+        showExtensions: true,
+        showCommonExtensions: true
+      }
+    }))
+
+    // Rota para JSON do Swagger
+    this.app.get('/api-docs.json', (req, res) => {
+      res.setHeader('Content-Type', 'application/json')
+      res.send(swaggerSpec)
+    })
+
+    /**
+     * @swagger
+     * /:
+     *   get:
+     *     tags: [System]
+     *     summary: Informações da API
+     *     description: Retorna informações gerais sobre a API e endpoints disponíveis
+     *     security: []
+     *     responses:
+     *       200:
+     *         description: Informações da API
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 success:
+     *                   type: boolean
+     *                   example: true
+     *                 message:
+     *                   type: string
+     *                   example: MVK Balance API - Sistema de Gerenciamento de Balança com Arduino
+     *                 version:
+     *                   type: string
+     *                   example: 1.0.0
+     *                 endpoints:
+     *                   type: object
+     *                   properties:
+     *                     auth:
+     *                       type: string
+     *                       example: /auth
+     *                     products:
+     *                       type: string
+     *                       example: /products
+     *                     weight:
+     *                       type: string
+     *                       example: /weight
+     *                     arduino:
+     *                       type: string
+     *                       example: /arduino
+     *                     health:
+     *                       type: string
+     *                       example: /health
+     *                     documentation:
+     *                       type: string
+     *                       example: /api-docs
+     *                 documentation:
+     *                   type: object
+     *                   properties:
+     *                     message:
+     *                       type: string
+     *                     swagger:
+     *                       type: string
+     *                     authentication:
+     *                       type: string
+     *                     headers:
+     *                       type: object
+     *                 timestamp:
+     *                   type: string
+     *                   format: date-time
+     */
     this.app.get('/', (req, res) => {
       res.json({
         success: true,
@@ -67,10 +235,12 @@ class Server {
           products: '/products',
           weight: '/weight',
           arduino: '/arduino',
-          health: '/health'
+          health: '/health',
+          documentation: '/api-docs'
         },
         documentation: {
           message: 'Use os endpoints acima para interagir com a API',
+          swagger: 'Acesse /api-docs para documentação interativa',
           authentication: 'Todas as rotas (exceto /auth/login) requerem CLIENT_ID e CLIENT_SECRET',
           headers: {
             'x-client-id': 'Seu CLIENT_ID',
@@ -159,14 +329,18 @@ class Server {
     this.app.use(GeneralMiddleware.errorHandler())
   }
 
-  start() {
+  async start() {
+    // Inicializar banco de dados primeiro
+    await this.initializeDatabase()
+
     this.app.listen(this.port, () => {
       console.log('🚀 ==========================================')
       console.log('🚀  MVK BALANCE API INICIADA COM SUCESSO!')
       console.log('🚀 ==========================================')
       console.log(`📡 Servidor rodando na porta: ${this.port}`)
       console.log(`🌐 URL: http://localhost:${this.port}`)
-      console.log(`📚 Documentação: http://localhost:${this.port}/api/info`)
+      console.log(`📚 Documentação: http://localhost:${this.port}/api-docs`)
+      console.log(`📖 API Info: http://localhost:${this.port}/api/info`)
       console.log(`❤️  Health Check: http://localhost:${this.port}/health`)
       console.log('🚀 ==========================================')
       console.log('')
@@ -178,7 +352,7 @@ class Server {
       console.log('🔐 POST /auth/login - Autenticação')
       console.log('📦 GET /products - Listar produtos')
       console.log('⚖️  POST /weight/readings - Registrar peso')
-      console.log('🤖 POST /arduino/command - Enviar comando')
+      console.log('🤖 POST /arduino/weight-movement - Arduino enviar dados')
       console.log('')
       console.log('✅ API pronta para receber requisições!')
     })
@@ -210,6 +384,17 @@ class Server {
 
 // Inicializar servidor
 const server = new Server()
-server.start()
+
+// Função async para inicializar
+async function initializeServer() {
+  try {
+    await server.start()
+  } catch (error) {
+    console.error('❌ Erro ao inicializar servidor:', error)
+    process.exit(1)
+  }
+}
+
+initializeServer()
 
 module.exports = server.app 
