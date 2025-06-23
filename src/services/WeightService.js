@@ -47,6 +47,9 @@ class WeightService {
       if (readingData.arduinoId !== undefined) {
         createData.arduinoId = readingData.arduinoId
       }
+      if (readingData.dayOfWeek !== undefined) {
+        createData.dayOfWeek = readingData.dayOfWeek
+      }
 
       const reading = await this.weightReadingRepository.create(createData)
 
@@ -253,6 +256,11 @@ class WeightService {
       const results = []
       const errors = []
 
+      // Obter timestamp atual e dia da semana
+      const currentTimestamp = new Date()
+      const daysOfWeek = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado']
+      const dayOfWeek = daysOfWeek[currentTimestamp.getDay()]
+
       for (let i = 0; i < movements.length; i++) {
         const movement = movements[i]
         
@@ -261,16 +269,18 @@ class WeightService {
           const readingResult = await this.recordWeightReading({
             productName: movement.productName,
             weight: movement.weight,
-            timestamp: movement.timestamp,
+            timestamp: currentTimestamp,
             action: movement.action,
-            arduinoId: movement.arduinoId
+            arduinoId: movement.arduinoId,
+            dayOfWeek: dayOfWeek
           })
 
           if (readingResult.success) {
             results.push({
               ...readingResult.data,
               action: movement.action,
-              arduinoId: movement.arduinoId
+              arduinoId: movement.arduinoId,
+              dayOfWeek: dayOfWeek
             })
           } else {
             errors.push({

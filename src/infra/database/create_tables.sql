@@ -62,7 +62,8 @@ CREATE TABLE IF NOT EXISTS weight_readings (
     action VARCHAR(20) NULL,
     arduino_id INTEGER NULL,
     timestamp TIMESTAMPTZ NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    day_of_week VARCHAR(20) NULL
 );
 
 -- Índices para otimização
@@ -91,6 +92,7 @@ COMMENT ON COLUMN weight_readings.weight IS 'Peso lido em gramas';
 COMMENT ON COLUMN weight_readings.action IS 'Ação realizada: RETIRADO ou COLOCADO';
 COMMENT ON COLUMN weight_readings.arduino_id IS 'ID do Arduino que registrou a leitura';
 COMMENT ON COLUMN weight_readings.timestamp IS 'Timestamp da leitura (do Arduino)';
+COMMENT ON COLUMN weight_readings.day_of_week IS 'Dia da semana da leitura em português';
 
 -- Visualizações úteis
 CREATE OR REPLACE VIEW v_weight_summary AS
@@ -159,6 +161,12 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
                    WHERE table_name = 'weight_readings' AND column_name = 'arduino_id') THEN
         ALTER TABLE weight_readings ADD COLUMN arduino_id INTEGER NULL;
+    END IF;
+    
+    -- day_of_week
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'weight_readings' AND column_name = 'day_of_week') THEN
+        ALTER TABLE weight_readings ADD COLUMN day_of_week VARCHAR(20) NULL;
     END IF;
 END $$;
 

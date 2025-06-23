@@ -34,6 +34,9 @@ class WeightReadingRepository {
     if (dbData.arduino_id !== null && dbData.arduino_id !== undefined) {
       readingData.arduinoId = dbData.arduino_id
     }
+    if (dbData.day_of_week !== null && dbData.day_of_week !== undefined) {
+      readingData.dayOfWeek = dbData.day_of_week
+    }
 
     return new WeightReading(readingData)
   }
@@ -54,6 +57,9 @@ class WeightReadingRepository {
     }
     if (reading.arduinoId !== undefined) {
       dbData.arduino_id = reading.arduinoId
+    }
+    if (reading.dayOfWeek !== undefined) {
+      dbData.day_of_week = reading.dayOfWeek
     }
 
     return dbData
@@ -79,8 +85,8 @@ class WeightReadingRepository {
     try {
       const dbData = this._mapToDb(reading)
       const result = await supabaseConfig.query(
-        `INSERT INTO ${this.tableName} (id, product_name, weight, action, arduino_id, timestamp, created_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `INSERT INTO ${this.tableName} (id, product_name, weight, action, arduino_id, day_of_week, timestamp, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
          RETURNING *`,
         [
           dbData.id, 
@@ -88,6 +94,7 @@ class WeightReadingRepository {
           dbData.weight, 
           dbData.action || null,
           dbData.arduino_id || null,
+          dbData.day_of_week || null,
           dbData.timestamp, 
           dbData.created_at
         ]
