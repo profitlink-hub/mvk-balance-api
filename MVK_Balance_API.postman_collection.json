@@ -1,0 +1,501 @@
+{
+  "info": {
+    "name": "MVK Balance API",
+    "description": "Collection completa da API de gerenciamento de balança com Arduino",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": {
+      "major": 1,
+      "minor": 0,
+      "patch": 0
+    }
+  },
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "username",
+        "value": "{{CLIENT_ID}}",
+        "type": "string"
+      },
+      {
+        "key": "password",
+        "value": "{{CLIENT_SECRET}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "BASE_URL",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "CLIENT_ID",
+      "value": "arduino_client_001",
+      "type": "string"
+    },
+    {
+      "key": "CLIENT_SECRET",
+      "value": "secret_arduino_2023",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🔍 System",
+      "description": "Endpoints de sistema e saúde da API",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/health",
+              "host": ["{{BASE_URL}}"],
+              "path": ["health"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/",
+              "host": ["{{BASE_URL}}"],
+              "path": [""]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Swagger Docs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api-docs",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api-docs"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔐 Auth",
+      "description": "Endpoints de autenticação e gerenciamento de clientes",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clientId\": \"{{CLIENT_ID}}\",\n  \"clientSecret\": \"{{CLIENT_SECRET}}\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/login",
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Validate Secret Strength",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clientSecret\": \"{{CLIENT_SECRET}}\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/validate-secret",
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "validate-secret"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Validate Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/auth/validate",
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "validate"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current Client",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/auth/me",
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "me"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Client",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Novo Cliente\",\n  \"clientId\": \"custom_client_001\",\n  \"clientSecret\": \"custom_secret_2023\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/clients",
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "clients"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List All Clients",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/auth/clients",
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "clients"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📦 Products",
+      "description": "Endpoints de gerenciamento de produtos",
+      "item": [
+        {
+          "name": "List All Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/products",
+              "host": ["{{BASE_URL}}"],
+              "path": ["products"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Product (API Format)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Arduino Uno\",\n  \"weight\": 25.5\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/products",
+              "host": ["{{BASE_URL}}"],
+              "path": ["products"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Product (Arduino Format)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Creatina\",\n  \"peso_esperado\": 277.0,\n  \"peso_real\": 249.1,\n  \"arduino_id\": 0,\n  \"ts\": 132217\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/products",
+              "host": ["{{BASE_URL}}"],
+              "path": ["products"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/products/{{PRODUCT_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["products", "{{PRODUCT_ID}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Arduino Uno v2\",\n  \"weight\": 26.0\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/products/{{PRODUCT_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["products", "{{PRODUCT_ID}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/products/{{PRODUCT_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["products", "{{PRODUCT_ID}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "⚖️ Weight",
+      "description": "Endpoints de gerenciamento de leituras de peso",
+      "item": [
+        {
+          "name": "Record Weight Reading",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productName\": \"Arduino Uno\",\n  \"weight\": 25.5,\n  \"timestamp\": \"2023-12-01T10:30:00.000Z\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/weight/readings",
+              "host": ["{{BASE_URL}}"],
+              "path": ["weight", "readings"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Weight Readings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/weight/readings?productName=Arduino&startDate=2023-12-01&endDate=2023-12-31&limit=50&offset=0",
+              "host": ["{{BASE_URL}}"],
+              "path": ["weight", "readings"],
+              "query": [
+                {
+                  "key": "productName",
+                  "value": "Arduino"
+                },
+                {
+                  "key": "startDate",
+                  "value": "2023-12-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2023-12-31"
+                },
+                {
+                  "key": "limit",
+                  "value": "50"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Reading by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/weight/readings/{{READING_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["weight", "readings", "{{READING_ID}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Readings by Product",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/weight/readings/product/{{PRODUCT_NAME}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["weight", "readings", "product", "{{PRODUCT_NAME}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Readings by Period",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/weight/readings/period?startDate=2023-12-01&endDate=2023-12-31",
+              "host": ["{{BASE_URL}}"],
+              "path": ["weight", "readings", "period"],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2023-12-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2023-12-31"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🤖 Arduino",
+      "description": "Endpoints específicos para comunicação com Arduino",
+      "item": [
+        {
+          "name": "Get Arduino Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/arduino/info",
+              "host": ["{{BASE_URL}}"],
+              "path": ["arduino", "info"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Arduino Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/arduino/status",
+              "host": ["{{BASE_URL}}"],
+              "path": ["arduino", "status"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Weight Movement (Single)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"cerveja\",\n  \"peso\": 335.1,\n  \"acao\": \"RETIRADO\",\n  \"ts\": 214022\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/arduino/weight-movement",
+              "host": ["{{BASE_URL}}"],
+              "path": ["arduino", "weight-movement"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Weight Movement (Multiple)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"acao\": \"COLOCADOS\",\n  \"quantidade\": 3,\n  \"produtos\": [\n    {\n      \"nome\": \"cerveja\",\n      \"peso\": 347.0,\n      \"id\": 0\n    },\n    {\n      \"nome\": \"cerveja\",\n      \"peso\": 347.3,\n      \"id\": 1\n    },\n    {\n      \"nome\": \"2MA\",\n      \"peso\": 90.5,\n      \"id\": 3\n    }\n  ],\n  \"ts\": 188787\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/arduino/weight-movement",
+              "host": ["{{BASE_URL}}"],
+              "path": ["arduino", "weight-movement"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+} 

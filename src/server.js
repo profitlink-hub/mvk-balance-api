@@ -59,8 +59,24 @@ class Server {
   }
 
   setupMiddlewares() {
+    // Forçar HTTP apenas - desabilitar HTTPS completamente
+    this.app.use((req, res, next) => {
+      // Remove headers que forçam HTTPS
+      res.removeHeader('Strict-Transport-Security');
+      res.removeHeader('upgrade-insecure-requests');
+      
+      // Não redirecionar para HTTPS
+      if (req.header('x-forwarded-proto') !== 'http') {
+        // Continua normalmente sem redirecionamento
+      }
+      next();
+    });
+
     // Middlewares de segurança
-    this.app.use(helmet())
+    this.app.use(helmet({
+      hsts: false, // Desabilita HTTP Strict Transport Security
+      contentSecurityPolicy: false // Desabilita CSP que pode forçar HTTPS
+    }))
     this.app.use(cors())
 
     // Rate limiting geral
