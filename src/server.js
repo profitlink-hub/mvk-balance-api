@@ -7,6 +7,7 @@ const helmet = require('helmet')
 const rateLimit = require('express-rate-limit')
 const swaggerUi = require('swagger-ui-express')
 const swaggerSpec = require('./swagger/swagger.config')
+const path = require('path')
 
 // Importar middlewares
 const GeneralMiddleware = require('./middlewares/GeneralMiddleware')
@@ -78,6 +79,9 @@ class Server {
       contentSecurityPolicy: false // Desabilita CSP que pode forçar HTTPS
     }))
     this.app.use(cors())
+
+    // Servir arquivos estáticos da raiz do projeto
+    this.app.use('/static', express.static(path.join(__dirname, '..')))
 
     // Rate limiting geral
     const limiter = rateLimit({
@@ -185,6 +189,27 @@ class Server {
 
     /**
      * @swagger
+     * /dashboard:
+     *   get:
+     *     tags: [System]
+     *     summary: Dashboard de Vendas
+     *     description: Acessa o dashboard HTML para visualização de dados de vendas
+     *     security: []
+     *     responses:
+     *       200:
+     *         description: Página HTML do dashboard
+     *         content:
+     *           text/html:
+     *             schema:
+     *               type: string
+     */
+    // Rota para o Dashboard HTML
+    this.app.get('/dashboard', (req, res) => {
+      res.sendFile(path.join(__dirname, '..', 'index.html'))
+    })
+
+    /**
+     * @swagger
      * /:
      *   get:
      *     tags: [System]
@@ -256,7 +281,8 @@ class Server {
           arduino: '/arduino',
           health: '/health (GET - status da API)',
           healthCheck: 'POST /health (Arduino test)',
-          documentation: '/api-docs'
+          documentation: '/api-docs',
+          dashboard: '/dashboard (Dashboard de Vendas)'
         },
         documentation: {
           message: 'Use os endpoints acima para interagir com a API',
@@ -396,6 +422,7 @@ class Server {
           'GET /health',
           'POST /health',
           'GET /api/info',
+          'GET /dashboard',
           'POST /auth/login',
           'GET /products',
           'POST /weight/readings',
@@ -431,6 +458,7 @@ class Server {
       console.log('🔑 Web: web_client_001 / secret_web_2023')
       console.log('')
       console.log('🛠️  Endpoints principais:')
+      console.log('📊 GET /dashboard - Dashboard de Vendas')
       console.log('🔐 POST /auth/login - Autenticação')
       console.log('📦 GET /products - Listar produtos')
       console.log('⚖️  POST /weight/readings - Registrar peso')
