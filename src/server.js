@@ -60,23 +60,17 @@ class Server {
   }
 
   setupMiddlewares() {
-    // Forçar HTTP apenas - desabilitar HTTPS completamente
+    // Forçar HTTP no Railway
     this.app.use((req, res, next) => {
-      // Remove headers que forçam HTTPS
-      res.removeHeader('Strict-Transport-Security');
-      res.removeHeader('upgrade-insecure-requests');
-      
       // Não redirecionar para HTTPS
-      if (req.header('x-forwarded-proto') !== 'http') {
-        // Continua normalmente sem redirecionamento
-      }
+      res.removeHeader('Strict-Transport-Security');
       next();
     });
 
-    // Middlewares de segurança
+    // Helmet sem HTTPS obrigatório
     this.app.use(helmet({
       hsts: false, // Desabilita HTTP Strict Transport Security
-      contentSecurityPolicy: false // Desabilita CSP que pode forçar HTTPS
+      contentSecurityPolicy: false
     }))
     this.app.use(cors())
 
