@@ -3,9 +3,7 @@ const { createClient } = require('@supabase/supabase-js')
 class SupabaseConfig {
   constructor() {
     // String de conexão direta PostgreSQL
-    this.connectionString = process.env.DATABASE_URL || 
-                           process.env.SUPABASE_DATABASE_URL || 
-                           `postgresql://postgres:${process.env.SUPABASE_PASSWORD || ''}@db.gvdmggfzmgsvgebnuzcx.supabase.co:5432/postgres`
+    this.connectionString = 'postgresql://postgres:mvk2025@db.gvdmggfzmgsvgebnuzcx.supabase.co:5432/postgres'
 
     // URL do Supabase (construída a partir do projeto)
     this.supabaseUrl = 'https://gvdmggfzmgsvgebnuzcx.supabase.co'
