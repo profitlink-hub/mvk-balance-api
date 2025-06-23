@@ -60,18 +60,8 @@ class Server {
   }
 
   setupMiddlewares() {
-    // Forçar HTTP no Railway
-    this.app.use((req, res, next) => {
-      // Não redirecionar para HTTPS
-      res.removeHeader('Strict-Transport-Security');
-      next();
-    });
-
-    // Helmet sem HTTPS obrigatório
-    this.app.use(helmet({
-      hsts: false, // Desabilita HTTP Strict Transport Security
-      contentSecurityPolicy: false
-    }))
+    // Middlewares de segurança básicos para VPS
+    this.app.use(helmet())
     this.app.use(cors())
 
     // Servir arquivos estáticos da raiz do projeto
