@@ -1,13 +1,13 @@
 const express = require('express')
 const ArduinoController = require('../controllers/ArduinoController')
-const AuthMiddleware = require('../middlewares/AuthMiddleware')
+// const AuthMiddleware = require('../middlewares/AuthMiddleware')
 
 const router = express.Router()
 const arduinoController = new ArduinoController()
 
 // Aplicar autenticação em todas as rotas do Arduino
-router.use(AuthMiddleware.authenticate())
-router.use(AuthMiddleware.requireActiveClient())
+// router.use(AuthMiddleware.authenticate())
+// router.use(AuthMiddleware.requireActiveClient())
 
 /**
  * @swagger
@@ -235,6 +235,73 @@ router.get('/status', (req, res) => {
  */
 router.post('/weight-movement', (req, res) => {
   arduinoController.receiveWeightMovement(req, res)
+})
+
+/**
+ * @swagger
+ * /health:
+ *   post:
+ *     tags: [Arduino]
+ *     summary: Health check do Arduino
+ *     description: Endpoint para receber teste de conectividade do Arduino
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               teste:
+ *                 type: boolean
+ *                 example: true
+ *               timestamp:
+ *                 type: integer
+ *                 example: 5859217
+ *           example:
+ *             teste: true
+ *             timestamp: 5859217
+ *     responses:
+ *       200:
+ *         description: Health check recebido com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: object
+ *                       properties:
+ *                         received:
+ *                           type: object
+ *                           description: Dados recebidos do Arduino
+ *                         status:
+ *                           type: string
+ *                           example: Arduino conectado
+ *                         serverTimestamp:
+ *                           type: integer
+ *                           description: Timestamp do servidor
+ *       400:
+ *         description: Payload de teste inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ErrorResponse'
+ *                 - type: object
+ *                   properties:
+ *                     expected:
+ *                       type: object
+ *                       properties:
+ *                         teste:
+ *                           type: boolean
+ *                         timestamp:
+ *                           type: string
+ */
+router.post('/health', (req, res) => {
+  arduinoController.receiveHealthCheck(req, res)
 })
 
 module.exports = router 

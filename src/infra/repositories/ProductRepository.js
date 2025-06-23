@@ -6,35 +6,75 @@ class ProductRepository {
   constructor() {
     this.tableName = 'products'
     
-    // Fallback para desenvolvimento sem Supabase
-    this.useMemory = !supabaseConfig.isConnected()
-    if (this.useMemory) {
-      this.products = new Map()
-    }
+    // Fallback para desenvolvimento sem Supabase (inicialização lazy)
+    this.products = new Map() // Sempre inicializar para fallback
+  }
+
+  // Verificar se deve usar memória (lazy check)
+  _shouldUseMemory() {
+    return !supabaseConfig.isConnected()
   }
 
   // Converter dados do banco para modelo
   _mapToModel(dbData) {
     if (!dbData) return null
 
-    return new Product({
+    const productData = {
       id: dbData.id,
       name: dbData.name,
       weight: parseFloat(dbData.weight),
       createdAt: new Date(dbData.created_at),
       updatedAt: new Date(dbData.updated_at)
-    })
+    }
+
+    // Adicionar campos opcionais se existirem
+    if (dbData.expected_weight !== null && dbData.expected_weight !== undefined) {
+      productData.expectedWeight = parseFloat(dbData.expected_weight)
+    }
+    if (dbData.arduino_id !== null && dbData.arduino_id !== undefined) {
+      productData.arduinoId = dbData.arduino_id
+    }
+    if (dbData.arduino_timestamp !== null && dbData.arduino_timestamp !== undefined) {
+      productData.arduinoTimestamp = dbData.arduino_timestamp
+    }
+    if (dbData.registered_at !== null && dbData.registered_at !== undefined) {
+      productData.registeredAt = new Date(dbData.registered_at)
+    }
+    if (dbData.source) {
+      productData.source = dbData.source
+    }
+
+    return new Product(productData)
   }
 
   // Converter modelo para dados do banco
   _mapToDb(product) {
-    return {
+    const dbData = {
       id: product.id,
       name: product.name,
       weight: product.weight,
       created_at: product.createdAt,
       updated_at: product.updatedAt || new Date()
     }
+
+    // Adicionar campos opcionais se existirem
+    if (product.expectedWeight !== undefined) {
+      dbData.expected_weight = product.expectedWeight
+    }
+    if (product.arduinoId !== undefined) {
+      dbData.arduino_id = product.arduinoId
+    }
+    if (product.arduinoTimestamp !== undefined) {
+      dbData.arduino_timestamp = product.arduinoTimestamp
+    }
+    if (product.registeredAt !== undefined) {
+      dbData.registered_at = product.registeredAt
+    }
+    if (product.source !== undefined) {
+      dbData.source = product.source
+    }
+
+    return dbData
   }
 
   // Criar produto
@@ -55,7 +95,7 @@ class ProductRepository {
       throw new Error('Produto com este nome já existe')
     }
 
-    if (this.useMemory) {
+    if (this._shouldUseMemory()) {
       this.products.set(id, product)
       return product
     }
@@ -63,10 +103,21 @@ class ProductRepository {
     try {
       const dbData = this._mapToDb(product)
       const result = await supabaseConfig.query(
-        `INSERT INTO ${this.tableName} (id, name, weight, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5)
+        `INSERT INTO ${this.tableName} (id, name, weight, expected_weight, arduino_id, arduino_timestamp, registered_at, source, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
          RETURNING *`,
-        [dbData.id, dbData.name, dbData.weight, dbData.created_at, dbData.updated_at]
+        [
+          dbData.id, 
+          dbData.name, 
+          dbData.weight, 
+          dbData.expected_weight || null,
+          dbData.arduino_id || null,
+          dbData.arduino_timestamp || null,
+          dbData.registered_at || null,
+          dbData.source || 'api',
+          dbData.created_at, 
+          dbData.updated_at
+        ]
       )
 
       return this._mapToModel(result.rows[0])
@@ -80,7 +131,7 @@ class ProductRepository {
 
   // Buscar produto por ID
   async findById(id) {
-    if (this.useMemory) {
+    if (this._shouldUseMemory()) {
       return this.products.get(id) || null
     }
 
@@ -99,7 +150,7 @@ class ProductRepository {
 
   // Buscar produto por nome
   async findByName(name) {
-    if (this.useMemory) {
+    if (this._shouldUseMemory()) {
       for (const product of this.products.values()) {
         if (product.name.toLowerCase() === name.toLowerCase()) {
           return product
@@ -123,7 +174,7 @@ class ProductRepository {
 
   // Buscar produtos por nome (busca parcial)
   async searchByName(searchTerm) {
-    if (this.useMemory) {
+    if (this._shouldUseMemory()) {
       const results = []
       for (const product of this.products.values()) {
         if (product.name.toLowerCase().includes(searchTerm.toLowerCase())) {
@@ -150,7 +201,7 @@ class ProductRepository {
 
   // Listar todos os produtos
   async findAll() {
-    if (this.useMemory) {
+    if (this._shouldUseMemory()) {
       return Array.from(this.products.values())
     }
 
@@ -168,7 +219,7 @@ class ProductRepository {
 
   // Atualizar produto
   async update(id, updateData) {
-    if (this.useMemory) {
+    if (this._shouldUseMemory()) {
       const product = this.products.get(id)
       if (!product) {
         return null
@@ -217,10 +268,20 @@ class ProductRepository {
       const dbData = this._mapToDb(updatedProduct)
       const result = await supabaseConfig.query(
         `UPDATE ${this.tableName} 
-         SET name = $2, weight = $3, updated_at = $4
+         SET name = $2, weight = $3, expected_weight = $4, arduino_id = $5, arduino_timestamp = $6, registered_at = $7, source = $8, updated_at = $9
          WHERE id = $1
          RETURNING *`,
-        [id, dbData.name, dbData.weight, dbData.updated_at]
+        [
+          id, 
+          dbData.name, 
+          dbData.weight, 
+          dbData.expected_weight || null,
+          dbData.arduino_id || null,
+          dbData.arduino_timestamp || null,
+          dbData.registered_at || null,
+          dbData.source || 'api',
+          dbData.updated_at
+        ]
       )
 
       return result.rows.length > 0 ? this._mapToModel(result.rows[0]) : null
@@ -234,7 +295,7 @@ class ProductRepository {
 
   // Deletar produto
   async delete(id) {
-    if (this.useMemory) {
+    if (this._shouldUseMemory()) {
       return this.products.delete(id)
     }
 
@@ -253,7 +314,7 @@ class ProductRepository {
 
   // Obter estatísticas de produtos
   async getStats() {
-    if (this.useMemory) {
+    if (this._shouldUseMemory()) {
       const products = Array.from(this.products.values())
       const weights = products.map(p => p.weight)
       return {
@@ -289,7 +350,7 @@ class ProductRepository {
 
   // Criar múltiplos produtos em lote
   async createBulk(productsData) {
-    if (this.useMemory) {
+    if (this._shouldUseMemory()) {
       const createdProducts = []
       for (const productData of productsData) {
         try {

@@ -43,6 +43,34 @@ class ArduinoController {
     }
   }
 
+  // POST /health - Receber teste de conectividade do Arduino
+  async receiveHealthCheck(req, res) {
+    try {
+      const data = req.body
+
+      // Validar se é um payload de teste válido
+      if (data && typeof data.teste === 'boolean' && data.teste === true) {
+        console.log(`🤖 Health check recebido do Arduino: timestamp=${data.timestamp}`)
+        
+        res.status(200).json({
+          success: true,
+        })
+      } else {
+        res.status(400).json({
+          success: false,
+          error: 'Payload de teste inválido',
+          expected: { teste: true, timestamp: 'number' }
+        })
+      }
+    } catch (error) {
+      console.error('Erro em receiveHealthCheck:', error)
+      res.status(500).json({
+        success: false,
+        error: 'Erro interno do servidor'
+      })
+    }
+  }
+
   // POST /arduino/weight-movement - Receber movimentações de peso do Arduino
   async receiveWeightMovement(req, res) {
     try {

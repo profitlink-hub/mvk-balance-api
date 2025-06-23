@@ -23,10 +23,34 @@ class ProductService {
         throw new Error('Já existe um produto com este nome')
       }
 
-      const product = await this.productRepository.create({
+      // Preparar dados para criação
+      const createData = {
         name: productData.name.trim(),
         weight: parseFloat(productData.weight)
-      })
+      }
+
+      // Adicionar campos específicos do Arduino se presentes
+      if (productData.expectedWeight !== undefined) {
+        createData.expectedWeight = parseFloat(productData.expectedWeight)
+      }
+      
+      if (productData.arduinoId !== undefined) {
+        createData.arduinoId = productData.arduinoId
+      }
+      
+      if (productData.arduinoTimestamp !== undefined) {
+        createData.arduinoTimestamp = productData.arduinoTimestamp
+      }
+      
+      if (productData.registeredAt !== undefined) {
+        createData.registeredAt = productData.registeredAt
+      }
+      
+      if (productData.source !== undefined) {
+        createData.source = productData.source
+      }
+
+      const product = await this.productRepository.create(createData)
 
       return {
         success: true,

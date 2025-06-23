@@ -34,11 +34,21 @@ class WeightService {
       }
 
       // Criar leitura de peso
-      const reading = await this.weightReadingRepository.create({
+      const createData = {
         productName: readingData.productName.trim(),
         weight: parseFloat(readingData.weight),
         timestamp: readingData.timestamp ? new Date(readingData.timestamp) : new Date()
-      })
+      }
+
+      // Adicionar campos opcionais do Arduino se presentes
+      if (readingData.action !== undefined) {
+        createData.action = readingData.action
+      }
+      if (readingData.arduinoId !== undefined) {
+        createData.arduinoId = readingData.arduinoId
+      }
+
+      const reading = await this.weightReadingRepository.create(createData)
 
       return {
         success: true,
@@ -251,7 +261,9 @@ class WeightService {
           const readingResult = await this.recordWeightReading({
             productName: movement.productName,
             weight: movement.weight,
-            timestamp: movement.timestamp
+            timestamp: movement.timestamp,
+            action: movement.action,
+            arduinoId: movement.arduinoId
           })
 
           if (readingResult.success) {

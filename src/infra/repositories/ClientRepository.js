@@ -6,28 +6,25 @@ class ClientRepository {
   constructor() {
     this.tableName = 'clients'
     
-    // Fallback para desenvolvimento sem Supabase
-    this.useMemory = !supabaseConfig.isConnected()
-    if (this.useMemory) {
-      this.clients = new Map()
-      this.initializeDefaultClients()
-    }
+    // Fallback para desenvolvimento sem Supabase (inicialização lazy)
+    this.clients = new Map() // Sempre inicializar para fallback
+    this.initializeDefaultClients()
+  }
+
+  // Verificar se deve usar memória (lazy check)
+  _shouldUseMemory() {
+    return !supabaseConfig.isConnected()
   }
 
   // Inicializar clientes padrão (apenas para modo de desenvolvimento)
   initializeDefaultClients() {
-    if (!this.useMemory) return
+    if (!this._shouldUseMemory()) return
 
     const defaultClients = [
       {
         clientId: 'arduino_client_001',
-        clientSecret: 'secret_arduino_2023',
+        clientSecret: 'secret_arduino_2025',
         name: 'Arduino Balança Principal'
-      },
-      {
-        clientId: 'web_client_001',
-        clientSecret: 'secret_web_2023',
-        name: 'Aplicação Web'
       }
     ]
 
@@ -85,7 +82,7 @@ class ClientRepository {
       throw new Error('Cliente com este CLIENT_ID já existe')
     }
 
-    if (this.useMemory) {
+    if (this._shouldUseMemory()) {
       this.clients.set(id, client)
       return client
     }
@@ -110,7 +107,7 @@ class ClientRepository {
 
   // Buscar cliente por ID
   async findById(id) {
-    if (this.useMemory) {
+    if (this._shouldUseMemory()) {
       return this.clients.get(id) || null
     }
 
@@ -129,7 +126,7 @@ class ClientRepository {
 
   // Buscar cliente por CLIENT_ID
   async findByClientId(clientId) {
-    if (this.useMemory) {
+    if (this._shouldUseMemory()) {
       for (const client of this.clients.values()) {
         if (client.clientId === clientId) {
           return client
@@ -153,7 +150,7 @@ class ClientRepository {
 
   // Autenticar cliente com CLIENT_ID e CLIENT_SECRET
   async authenticate(clientId, clientSecret) {
-    if (this.useMemory) {
+    if (this._shouldUseMemory()) {
       const client = await this.findByClientId(clientId)
       if (!client) {
         return null
@@ -177,7 +174,7 @@ class ClientRepository {
 
   // Listar todos os clientes
   async findAll() {
-    if (this.useMemory) {
+    if (this._shouldUseMemory()) {
       return Array.from(this.clients.values())
     }
 
@@ -195,7 +192,7 @@ class ClientRepository {
 
   // Atualizar cliente
   async update(id, updateData) {
-    if (this.useMemory) {
+    if (this._shouldUseMemory()) {
       const client = this.clients.get(id)
       if (!client) {
         return null
@@ -256,7 +253,7 @@ class ClientRepository {
 
   // Deletar cliente
   async delete(id) {
-    if (this.useMemory) {
+    if (this._shouldUseMemory()) {
       return this.clients.delete(id)
     }
 
@@ -275,7 +272,7 @@ class ClientRepository {
 
   // Obter estatísticas de clientes
   async getStats() {
-    if (this.useMemory) {
+    if (this._shouldUseMemory()) {
       const clients = Array.from(this.clients.values())
       return {
         total: clients.length,

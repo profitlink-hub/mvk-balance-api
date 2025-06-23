@@ -1,3 +1,6 @@
+// Carregar variáveis de ambiente primeiro
+require('dotenv').config()
+
 const express = require('express')
 const cors = require('cors')
 const helmet = require('helmet')
@@ -235,7 +238,8 @@ class Server {
           products: '/products',
           weight: '/weight',
           arduino: '/arduino',
-          health: '/health',
+          health: '/health (GET - status da API)',
+          healthCheck: 'POST /health (Arduino test)',
           documentation: '/api-docs'
         },
         documentation: {
@@ -257,6 +261,67 @@ class Server {
     this.app.use('/products', ProductRoutes)
     this.app.use('/weight', WeightRoutes)
     this.app.use('/arduino', ArduinoRoutes)
+
+    // Rota de health check do Arduino (diretamente em /health)
+    const ArduinoController = require('./controllers/ArduinoController')
+    const arduinoController = new ArduinoController()
+    
+    /**
+     * @swagger
+     * /health:
+     *   post:
+     *     tags: [Arduino]
+     *     summary: Health check do Arduino
+     *     description: Endpoint para receber teste de conectividade do Arduino
+     *     security: []
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               teste:
+     *                 type: boolean
+     *                 example: true
+     *               timestamp:
+     *                 type: integer
+     *                 example: 5859217
+     *           example:
+     *             teste: true
+     *             timestamp: 5859217
+     *     responses:
+     *       200:
+     *         description: Health check recebido com sucesso
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 success:
+     *                   type: boolean
+     *                   example: true
+     *                 data:
+     *                   type: object
+     *                   properties:
+     *                     received:
+     *                       type: object
+     *                       description: Dados recebidos do Arduino
+     *                     status:
+     *                       type: string
+     *                       example: Arduino conectado
+     *                     serverTimestamp:
+     *                       type: integer
+     *                       description: Timestamp do servidor
+     *                 message:
+     *                   type: string
+     *                   example: Health check do Arduino recebido com sucesso
+     *       400:
+     *         description: Payload de teste inválido
+     */
+    this.app.post('/health', (req, res) => {
+      arduinoController.receiveHealthCheck(req, res)
+    })
 
     // Rota para informações da API
     this.app.get('/api/info', (req, res) => {
@@ -313,6 +378,7 @@ class Server {
         availableEndpoints: [
           'GET /',
           'GET /health',
+          'POST /health',
           'GET /api/info',
           'POST /auth/login',
           'GET /products',
@@ -353,6 +419,7 @@ class Server {
       console.log('📦 GET /products - Listar produtos')
       console.log('⚖️  POST /weight/readings - Registrar peso')
       console.log('🤖 POST /arduino/weight-movement - Arduino enviar dados')
+      console.log('💓 POST /health - Health check do Arduino')
       console.log('')
       console.log('✅ API pronta para receber requisições!')
     })

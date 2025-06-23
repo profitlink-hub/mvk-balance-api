@@ -1,13 +1,13 @@
 const express = require('express')
 const ProductController = require('../controllers/ProductController')
-const AuthMiddleware = require('../middlewares/AuthMiddleware')
+// const AuthMiddleware = require('../middlewares/AuthMiddleware')
 
 const router = express.Router()
 const productController = new ProductController()
 
 // Aplicar autenticação em todas as rotas de produtos
-router.use(AuthMiddleware.authenticate())
-router.use(AuthMiddleware.requireActiveClient())
+// router.use(AuthMiddleware.authenticate())
+// router.use(AuthMiddleware.requireActiveClient())
 
 /**
  * @swagger
@@ -53,7 +53,7 @@ router.get('/', (req, res) => {
  *   post:
  *     tags: [Products]
  *     summary: Criar novo produto
- *     description: Cria um novo produto no sistema
+ *     description: Cria um novo produto no sistema. Aceita dados da API tradicional ou dados enviados pelo Arduino
  *     security:
  *       - ClientAuth: []
  *         ClientSecret: []
@@ -62,20 +62,65 @@ router.get('/', (req, res) => {
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - name
- *               - weight
- *             properties:
- *               name:
- *                 type: string
- *                 description: Nome do produto
- *                 example: Arduino Uno
- *               weight:
- *                 type: number
- *                 format: float
- *                 description: Peso do produto em gramas
- *                 example: 25.5
+ *             oneOf:
+ *               - type: object
+ *                 title: Formato API Tradicional
+ *                 required:
+ *                   - name
+ *                   - weight
+ *                 properties:
+ *                   name:
+ *                     type: string
+ *                     description: Nome do produto
+ *                     example: Arduino Uno
+ *                   weight:
+ *                     type: number
+ *                     format: float
+ *                     description: Peso do produto em gramas
+ *                     example: 25.5
+ *               - type: object
+ *                 title: Formato Arduino
+ *                 required:
+ *                   - nome
+ *                   - peso_esperado
+ *                   - peso_real
+ *                 properties:
+ *                   nome:
+ *                     type: string
+ *                     description: Nome do produto
+ *                     example: Creatina
+ *                   peso_esperado:
+ *                     type: number
+ *                     format: float
+ *                     description: Peso esperado em gramas
+ *                     example: 277.0
+ *                   peso_real:
+ *                     type: number
+ *                     format: float
+ *                     description: Peso real medido em gramas
+ *                     example: 249.1
+ *                   arduino_id:
+ *                     type: integer
+ *                     description: ID do Arduino (opcional)
+ *                     example: 0
+ *                   ts:
+ *                     type: integer
+ *                     description: Timestamp do Arduino (opcional)
+ *                     example: 132217
+ *           examples:
+ *             api_tradicional:
+ *               summary: Dados da API tradicional
+ *               value:
+ *                 name: Arduino Uno
+ *                 weight: 25.5
+ *             arduino:
+ *               summary: Dados do Arduino
+ *               value:
+ *                 nome: Creatina
+ *                 peso_esperado: 277.0
+ *                 peso_real: 249.1
+ *                 arduino_id: 0
+ *                 ts: 132217
  *     responses:
  *       201:
  *         description: Produto criado com sucesso
@@ -87,7 +132,37 @@ router.get('/', (req, res) => {
  *                 - type: object
  *                   properties:
  *                     data:
- *                       $ref: '#/components/schemas/Product'
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                           format: uuid
+ *                         name:
+ *                           type: string
+ *                         weight:
+ *                           type: number
+ *                         expectedWeight:
+ *                           type: number
+ *                           description: Peso esperado (apenas para dados do Arduino)
+ *                         arduinoId:
+ *                           type: integer
+ *                           description: ID do Arduino (apenas para dados do Arduino)
+ *                         source:
+ *                           type: string
+ *                           description: Fonte dos dados (api ou arduino)
+ *                         arduino:
+ *                           type: object
+ *                           description: Dados específicos do Arduino (apenas quando enviado pelo Arduino)
+ *                           properties:
+ *                             received:
+ *                               type: object
+ *                               description: Dados originais recebidos
+ *                             processed:
+ *                               type: object
+ *                               description: Dados processados
+ *                             weightDifference:
+ *                               type: number
+ *                               description: Diferença entre peso esperado e real
  *       400:
  *         description: Dados inválidos
  *         content:

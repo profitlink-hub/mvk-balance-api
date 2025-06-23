@@ -135,6 +135,85 @@ class ProductValidator {
     return sanitized
   }
 
+  // Validar dados vindos do Arduino
+  validateArduinoData(data) {
+    const errors = []
+
+    // Validar nome
+    if (!data.nome) {
+      errors.push('Nome do produto é obrigatório')
+    } else if (typeof data.nome !== 'string') {
+      errors.push('Nome do produto deve ser uma string')
+    } else if (data.nome.trim().length < 2) {
+      errors.push('Nome do produto deve ter pelo menos 2 caracteres')
+    } else if (data.nome.trim().length > 100) {
+      errors.push('Nome do produto deve ter no máximo 100 caracteres')
+    }
+
+    // Validar peso_esperado
+    if (data.peso_esperado === undefined || data.peso_esperado === null) {
+      errors.push('Peso esperado é obrigatório')
+    } else if (typeof data.peso_esperado !== 'number') {
+      errors.push('Peso esperado deve ser um número')
+    } else if (data.peso_esperado < 0) {
+      errors.push('Peso esperado deve ser positivo')
+    } else if (data.peso_esperado > 10000) {
+      errors.push('Peso esperado deve ser menor que 10000g')
+    }
+
+    // Validar peso_real
+    if (data.peso_real === undefined || data.peso_real === null) {
+      errors.push('Peso real é obrigatório')
+    } else if (typeof data.peso_real !== 'number') {
+      errors.push('Peso real deve ser um número')
+    } else if (data.peso_real < 0) {
+      errors.push('Peso real deve ser positivo')
+    } else if (data.peso_real > 10000) {
+      errors.push('Peso real deve ser menor que 10000g')
+    }
+
+    // Validar arduino_id (opcional)
+    if (data.arduino_id !== undefined && data.arduino_id !== null) {
+      if (typeof data.arduino_id !== 'number' || !Number.isInteger(data.arduino_id)) {
+        errors.push('Arduino ID deve ser um número inteiro')
+      } else if (data.arduino_id < 0) {
+        errors.push('Arduino ID deve ser um número positivo')
+      }
+    }
+
+    // Validar timestamp (opcional)
+    if (data.ts !== undefined && data.ts !== null) {
+      if (typeof data.ts !== 'number' || !Number.isInteger(data.ts)) {
+        errors.push('Timestamp deve ser um número inteiro')
+      } else if (data.ts < 0) {
+        errors.push('Timestamp deve ser um número positivo')
+      }
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors: errors
+    }
+  }
+
+  // Converter dados do Arduino para formato padrão
+  convertArduinoData(data) {
+    return {
+      name: data.nome.trim(),
+      weight: data.peso_real, // Usar peso real como peso principal
+      expectedWeight: data.peso_esperado,
+      arduinoId: data.arduino_id || null,
+      arduinoTimestamp: data.ts || null,
+      registeredAt: new Date().toISOString(),
+      source: 'arduino'
+    }
+  }
+
+  // Detectar se os dados são do Arduino
+  isArduinoData(data) {
+    return !!(data.nome && (data.peso_esperado !== undefined || data.peso_real !== undefined))
+  }
+
   // Validar múltiplos produtos (para bulk operations)
   validateBulk(products) {
     const errors = []

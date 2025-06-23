@@ -137,6 +137,17 @@ curl -X POST http://localhost:3000/arduino/send-product \
 - **UUID** - Geração de IDs únicos
 - **ESLint** - Linting e padronização de código
 
+## Fluxo de trabalho
+graph TD
+    A[Arduino] -->|POST /arduino/weight-movement| B[ArduinoController]
+    B -->|Processa e valida| C[ArduinoService]
+    C -->|Registra leitura| D[WeightService]
+    
+    E[Interface Web] -->|GET /weight/readings| F[WeightController]
+    F -->|Consulta dados| D
+    
+    G[API Client] -->|POST /weight/readings| F
+
 ## 📝 Scripts Disponíveis
 
 ```bash

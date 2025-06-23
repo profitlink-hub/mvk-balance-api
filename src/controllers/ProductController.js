@@ -89,26 +89,69 @@ class ProductController {
     }
   }
 
+  // GET /products/search/:name - Buscar produtos por nome (alias para compatibilidade)
+  async searchProductsByName(req, res) {
+    return this.getProductByName(req, res)
+  }
+
   // POST /products - Criar novo produto
   async createProduct(req, res) {
     try {
-      // Validar dados de entrada
-      const validation = ProductValidator.validateCreate(req.body)
-      if (!validation.valid) {
-        return res.status(400).json({
-          success: false,
-          error: 'Dados inválidos',
-          details: validation.errors
-        })
-      }
+      let sanitizedData
+      let isFromArduino = false
 
-      // Sanitizar dados
-      const sanitizedData = ProductValidator.sanitize(req.body)
+      // Detectar se os dados vêm do Arduino
+      if (ProductValidator.isArduinoData(req.body)) {
+        console.log('🤖 Recebendo cadastro de produto do Arduino:', req.body)
+        
+        // Validar dados do Arduino
+        const validation = ProductValidator.validateArduinoData(req.body)
+        if (!validation.valid) {
+          return res.status(400).json({
+            success: false,
+            error: 'Dados do Arduino inválidos',
+            details: validation.errors
+          })
+        }
+
+        // Converter dados do Arduino para formato padrão
+        sanitizedData = ProductValidator.convertArduinoData(req.body)
+        isFromArduino = true
+      } else {
+        // Validar dados tradicionais da API
+        const validation = ProductValidator.validateCreate(req.body)
+        if (!validation.valid) {
+          return res.status(400).json({
+            success: false,
+            error: 'Dados inválidos',
+            details: validation.errors
+          })
+        }
+
+        // Sanitizar dados tradicionais
+        sanitizedData = ProductValidator.sanitize(req.body)
+      }
 
       const result = await this.productService.createProduct(sanitizedData)
       
       if (result.success) {
-        res.status(201).json(result)
+        // Resposta personalizada para Arduino
+        if (isFromArduino) {
+          res.status(201).json({
+            success: true,
+            data: {
+              ...result.data,
+              arduino: {
+                received: req.body,
+                processed: sanitizedData,
+                weightDifference: Math.abs(req.body.peso_esperado - req.body.peso_real)
+              }
+            },
+            message: `Produto "${req.body.nome}" cadastrado com sucesso pelo Arduino`
+          })
+        } else {
+          res.status(201).json(result)
+        }
       } else {
         const statusCode = result.error.includes('já existe') ? 409 : 400
         res.status(statusCode).json(result)

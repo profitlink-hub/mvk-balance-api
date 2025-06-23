@@ -6,35 +6,57 @@ class WeightReadingRepository {
   constructor() {
     this.tableName = 'weight_readings'
     
-    // Fallback para desenvolvimento sem Supabase
-    this.useMemory = !supabaseConfig.isConnected()
-    if (this.useMemory) {
-      this.readings = new Map()
-    }
+    // Fallback para desenvolvimento sem Supabase (inicialização lazy)
+    this.readings = new Map() // Sempre inicializar para fallback
+  }
+
+  // Verificar se deve usar memória (lazy check)
+  _shouldUseMemory() {
+    return !supabaseConfig.isConnected()
   }
 
   // Converter dados do banco para modelo
   _mapToModel(dbData) {
     if (!dbData) return null
 
-    return new WeightReading({
+    const readingData = {
       id: dbData.id,
       productName: dbData.product_name,
       weight: parseFloat(dbData.weight),
       timestamp: new Date(dbData.timestamp),
       createdAt: new Date(dbData.created_at)
-    })
+    }
+
+    // Adicionar campos opcionais se existirem
+    if (dbData.action !== null && dbData.action !== undefined) {
+      readingData.action = dbData.action
+    }
+    if (dbData.arduino_id !== null && dbData.arduino_id !== undefined) {
+      readingData.arduinoId = dbData.arduino_id
+    }
+
+    return new WeightReading(readingData)
   }
 
   // Converter modelo para dados do banco
   _mapToDb(reading) {
-    return {
+    const dbData = {
       id: reading.id,
       product_name: reading.productName,
       weight: reading.weight,
       timestamp: reading.timestamp,
       created_at: reading.createdAt || new Date()
     }
+
+    // Adicionar campos opcionais se existirem
+    if (reading.action !== undefined) {
+      dbData.action = reading.action
+    }
+    if (reading.arduinoId !== undefined) {
+      dbData.arduino_id = reading.arduinoId
+    }
+
+    return dbData
   }
 
   // Criar leitura de peso
@@ -49,7 +71,7 @@ class WeightReadingRepository {
       throw new Error('Dados da leitura inválidos')
     }
 
-    if (this.useMemory) {
+    if (this._shouldUseMemory()) {
       this.readings.set(id, reading)
       return reading
     }
@@ -57,10 +79,18 @@ class WeightReadingRepository {
     try {
       const dbData = this._mapToDb(reading)
       const result = await supabaseConfig.query(
-        `INSERT INTO ${this.tableName} (id, product_name, weight, timestamp, created_at)
-         VALUES ($1, $2, $3, $4, $5)
+        `INSERT INTO ${this.tableName} (id, product_name, weight, action, arduino_id, timestamp, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
          RETURNING *`,
-        [dbData.id, dbData.product_name, dbData.weight, dbData.timestamp, dbData.created_at]
+        [
+          dbData.id, 
+          dbData.product_name, 
+          dbData.weight, 
+          dbData.action || null,
+          dbData.arduino_id || null,
+          dbData.timestamp, 
+          dbData.created_at
+        ]
       )
 
       return this._mapToModel(result.rows[0])
@@ -72,7 +102,7 @@ class WeightReadingRepository {
 
   // Buscar leitura por ID
   async findById(id) {
-    if (this.useMemory) {
+    if (this._shouldUseMemory()) {
       return this.readings.get(id) || null
     }
 
@@ -91,7 +121,7 @@ class WeightReadingRepository {
 
   // Listar todas as leituras com filtros opcionais
   async findAll(options = {}) {
-    if (this.useMemory) {
+    if (this._shouldUseMemory()) {
       let readings = Array.from(this.readings.values())
 
       // Aplicar filtros
@@ -161,7 +191,7 @@ class WeightReadingRepository {
 
   // Buscar últimas leituras por produto
   async findLatestByProduct(productName, limit = 10) {
-    if (this.useMemory) {
+    if (this._shouldUseMemory()) {
       const readings = Array.from(this.readings.values())
         .filter(r => r.productName.toLowerCase() === productName.toLowerCase())
         .sort((a, b) => b.timestamp - a.timestamp)
@@ -188,7 +218,7 @@ class WeightReadingRepository {
 
   // Buscar leituras por período
   async findByDateRange(startDate, endDate) {
-    if (this.useMemory) {
+    if (this._shouldUseMemory()) {
       const readings = Array.from(this.readings.values())
         .filter(r => r.timestamp >= startDate && r.timestamp <= endDate)
         .sort((a, b) => b.timestamp - a.timestamp)
@@ -213,7 +243,7 @@ class WeightReadingRepository {
 
   // Obter estatísticas de leituras
   async getStatistics(options = {}) {
-    if (this.useMemory) {
+    if (this._shouldUseMemory()) {
       let readings = Array.from(this.readings.values())
 
       // Aplicar filtros
@@ -306,7 +336,7 @@ class WeightReadingRepository {
 
   // Obter resumo por produto
   async getSummaryByProduct() {
-    if (this.useMemory) {
+    if (this._shouldUseMemory()) {
       const summary = new Map()
       
       for (const reading of this.readings.values()) {
@@ -377,7 +407,7 @@ class WeightReadingRepository {
 
   // Limpeza de leituras antigas (manter apenas as mais recentes)
   async cleanup(keepCount = 1000) {
-    if (this.useMemory) {
+    if (this._shouldUseMemory()) {
       const readings = Array.from(this.readings.values())
         .sort((a, b) => b.timestamp - a.timestamp)
       
@@ -416,7 +446,7 @@ class WeightReadingRepository {
 
   // Deletar leituras por produto
   async deleteByProduct(productName) {
-    if (this.useMemory) {
+    if (this._shouldUseMemory()) {
       let deletedCount = 0
       for (const [id, reading] of this.readings.entries()) {
         if (reading.productName.toLowerCase() === productName.toLowerCase()) {
