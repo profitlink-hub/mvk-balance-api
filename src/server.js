@@ -60,9 +60,20 @@ class Server {
   }
 
   setupMiddlewares() {
-    // Middlewares de segurança básicos para VPS
-    this.app.use(helmet())
-    this.app.use(cors())
+    // CORS deve ser configurado primeiro
+    this.app.use(cors({
+      origin: '*',
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization', 'x-client-id', 'x-client-secret'],
+      credentials: true
+    }))
+    this.app.use(GeneralMiddleware.cors())
+
+    // Middlewares de segurança básicos para VPS (depois do CORS)
+    this.app.use(helmet({
+      crossOriginEmbedderPolicy: false, // Permite requests cross-origin
+      contentSecurityPolicy: false     // Desabilita CSP que pode bloquear fetch
+    }))
 
     // Servir arquivos estáticos da raiz do projeto
     this.app.use('/static', express.static(path.join(__dirname, '..')))
@@ -77,7 +88,11 @@ class Server {
         retryAfter: 900
       },
       standardHeaders: true,
-      legacyHeaders: false
+      legacyHeaders: false,
+      skip: (req) => {
+        // Pular rate limiting para dashboard e arquivos estáticos
+        return req.path === '/dashboard' || req.path.startsWith('/static')
+      }
     })
     this.app.use(limiter)
 
@@ -87,7 +102,6 @@ class Server {
 
     // Middlewares customizados
     this.app.use(GeneralMiddleware.requestLogger())
-    this.app.use(GeneralMiddleware.cors())
     this.app.use(GeneralMiddleware.securityHeaders())
     this.app.use(GeneralMiddleware.validateContentType(['application/json', 'application/x-www-form-urlencoded']))
     this.app.use(GeneralMiddleware.validateBodySize(5120)) // 5MB
@@ -210,6 +224,10 @@ class Server {
      */
     // Rota para o Dashboard HTML
     this.app.get('/dashboard', (req, res) => {
+      console.log('📊 Servindo dashboard para:', req.ip, req.get('User-Agent'))
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
+      res.setHeader('Pragma', 'no-cache')
+      res.setHeader('Expires', '0')
       res.sendFile(path.join(__dirname, '..', 'dynamic.html'))
     })
 

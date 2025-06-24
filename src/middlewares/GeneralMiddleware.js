@@ -175,13 +175,23 @@ class GeneralMiddleware {
   // Middleware para adicionar headers de segurança
   securityHeaders() {
     return (req, res, next) => {
-      res.set({
-        'X-Content-Type-Options': 'nosniff',
-        'X-Frame-Options': 'DENY',
-        'X-XSS-Protection': '1; mode=block',
-        'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
-        'Referrer-Policy': 'strict-origin-when-cross-origin'
-      })
+      // Headers mais permissivos para o dashboard
+      if (req.path === '/dashboard' || req.path.startsWith('/dashboard')) {
+        res.set({
+          'X-Content-Type-Options': 'nosniff',
+          'X-Frame-Options': 'SAMEORIGIN', // Mais permissivo para dashboard
+          'X-XSS-Protection': '1; mode=block',
+          'Referrer-Policy': 'strict-origin-when-cross-origin'
+        })
+      } else {
+        res.set({
+          'X-Content-Type-Options': 'nosniff',
+          'X-Frame-Options': 'DENY',
+          'X-XSS-Protection': '1; mode=block',
+          'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+          'Referrer-Policy': 'strict-origin-when-cross-origin'
+        })
+      }
       next()
     }
   }
