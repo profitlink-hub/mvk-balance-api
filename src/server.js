@@ -224,7 +224,6 @@ class Server {
      */
     // Rota para o Dashboard HTML
     this.app.get('/dashboard', (req, res) => {
-      console.log('📊 Servindo dashboard para:', req.ip, req.get('User-Agent'))
       res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
       res.setHeader('Pragma', 'no-cache')
       res.setHeader('Expires', '0')
