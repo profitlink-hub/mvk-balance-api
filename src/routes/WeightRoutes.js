@@ -61,16 +61,16 @@ const weightController = new WeightController()
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.post('/readings', 
-  AuthMiddleware.authenticate(),
-  AuthMiddleware.requireActiveClient(),
+  // AuthMiddleware.authenticate(),
+  // AuthMiddleware.requireActiveClient(),
   (req, res) => {
     weightController.recordWeightReading(req, res)
   }
 )
 
 // Aplicar autenticação em todas as outras rotas de peso
-router.use(AuthMiddleware.authenticate())
-router.use(AuthMiddleware.requireActiveClient())
+// router.use(AuthMiddleware.authenticate())
+// router.use(AuthMiddleware.requireActiveClient())
 
 // GET /weight/readings - Listar leituras com filtros
 /**
@@ -281,7 +281,7 @@ router.get('/latest', (req, res) => {
  *                           description: Leituras da semana atual
  */
 router.get('/summary', (req, res) => {
-  weightController.getWeightSummary(req, res)
+  weightController.getReadingsSummary(req, res)
 })
 
 // GET /weight/statistics - Obter estatísticas de peso

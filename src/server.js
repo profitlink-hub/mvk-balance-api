@@ -173,6 +173,27 @@ class Server {
 
     /**
      * @swagger
+     * /dashboard/static:
+     *   get:
+     *     tags: [System]
+     *     summary: Dashboard de Vendas
+     *     description: Acessa o dashboard HTML para visualização de dados de vendas
+     *     security: []
+     *     responses:
+     *       200:
+     *         description: Página HTML do dashboard
+     *         content:
+     *           text/html:
+     *             schema:
+     *               type: string
+     */
+    // Rota para o Dashboard HTML
+    this.app.get('/dashboard/static', (req, res) => {
+      res.sendFile(path.join(__dirname, '..', 'index.html'))
+    })
+
+    /**
+     * @swagger
      * /dashboard:
      *   get:
      *     tags: [System]
@@ -189,7 +210,7 @@ class Server {
      */
     // Rota para o Dashboard HTML
     this.app.get('/dashboard', (req, res) => {
-      res.sendFile(path.join(__dirname, '..', 'index.html'))
+      res.sendFile(path.join(__dirname, '..', 'dynamic.html'))
     })
 
     /**

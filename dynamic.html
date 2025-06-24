@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Vendas - Gôndolas Bimbo</title>
+    <style>
+        :root {
+            --bimbo-blue: #2a3074;
+            --bimbo-red: #ed1c2d;
+            --bimbo-white: #ffffff;
+            --background-light: #f4f6f9;
+            --text-dark: #333;
+            --text-light: #777;
+            --border-color: #dee2e6;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+        body { font-family: 'Roboto', sans-serif; background-color: var(--background-light); color: var(--text-dark); margin: 0; line-height: 1.6; }
+        .container { max-width: 1600px; margin: 0 auto; padding: 20px; }
+        .header { display: flex; align-items: center; justify-content: space-between; background-color: var(--bimbo-blue); color: var(--bimbo-white); padding: 15px 30px; border-radius: 8px; margin-bottom: 25px; }
+        .header img { height: 40px; }
+        .header h1 { margin: 0; font-size: 1.8rem; font-weight: 500; }
+        .kpi-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 25px; }
+        .card { background-color: var(--bimbo-white); padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .card h3 { margin: 0 0 10px 0; font-size: 1rem; color: var(--text-light); font-weight: 400; }
+        .card .value { font-size: 2.2rem; font-weight: 700; color: var(--bimbo-blue); }
+        .card .highlight { color: var(--bimbo-red); }
+        .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; margin-bottom: 25px; }
+        .chart-container, .table-container { background-color: var(--bimbo-white); padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .chart-container h2, .table-container h2 { margin: 0 0 20px 0; font-size: 1.4rem; font-weight: 500; color: var(--bimbo-blue); }
+        .sales-table { width: 100%; border-collapse: collapse; }
+        .sales-table th, .sales-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .sales-table th { font-weight: 500; }
+        .sales-table tbody tr:last-child td { border-bottom: none; }
+        .sales-table .item-name { font-weight: 500; }
+        .sales-table .date { color: var(--text-light); font-size: 0.9rem; }
+        .heatmap-container { background-color: var(--bimbo-white); padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        .heatmap-container h2 { margin: 0 0 20px 0; font-size: 1.4rem; font-weight: 500; color: var(--bimbo-blue); }
+        .heatmap { display: grid; grid-template-columns: auto repeat(7, 1fr); gap: 5px; }
+        .heatmap .day { text-align: center; font-weight: 500; margin-bottom: 10px; color: var(--text-light); }
+        .heatmap .hour-label { text-align: right; padding-right: 10px; font-size: 0.8rem; color: var(--text-light); display: flex; align-items: center; justify-content: flex-end; }
+        .heatmap .hour-cell { background-color: #e8eaf6; height: 35px; border-radius: 4px; }
+        .heatmap .hour-cell[data-level="1"] { background-color: #c5cae9; } .heatmap .hour-cell[data-level="2"] { background-color: #9fa8da; } .heatmap .hour-cell[data-level="3"] { background-color: #5c6bc0; } .heatmap .hour-cell[data-level="4"] { background-color: var(--bimbo-blue); } .heatmap .hour-cell[data-level="5"] { background-color: var(--bimbo-red); }
+        @media (max-width: 1200px) { .main-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) { .header { flex-direction: column; text-align: center; } .header h1 { margin-top: 10px; font-size: 1.5rem; } }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <div class="container">
+        <header class="header">
+            <img src="https://www.bimboqsrbrasil.com.br/wp-content/uploads/2022/11/bimbo-logo.png" alt="Bimbo Logo">
+            <h1>Dashboard de Vendas de Gôndolas</h1>
+        </header>
+
+        <section class="kpi-cards">
+            <div class="card">
+                <h3>Total de produtos vendidos</h3>
+                <div class="value" id="kpi-total-vendidos">Carregando...</div>
+            </div>
+            <div class="card">
+                <h3>Total de Display MVK</h3>
+                <div class="value" id="kpi-total-mvk">Carregando...</div>
+            </div>
+            <div class="card">
+                <h3>Produto mais vendido</h3>
+                <div class="value highlight" id="kpi-produto-mais-vendido">Carregando...</div>
+            </div>
+            <div class="card">
+                <h3>Melhor Display</h3>
+                <div class="value highlight" id="kpi-melhor-display">Carregando...</div>
+            </div>
+        </section>
+
+        <main class="main-grid">
+            <div class="chart-container">
+                <h2>Desempenho por Display</h2>
+                <canvas id="performanceByDisplayChart"></canvas>
+            </div>
+
+            <div class="table-container">
+                <h2>Últimas Vendas</h2>
+                <table class="sales-table">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Display</th>
+                            <th>Data</th>
+                        </tr>
+                    </thead>
+                    <tbody id="latest-sales-tbody">
+                        <tr>
+                            <td colspan="3" style="text-align: center; color: var(--text-light);">Carregando...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+        
+        <section class="heatmap-container">
+            <h2>Horários de Maior Venda (Semana)</h2>
+            <div class="heatmap" id="heatmap-container">
+                <!-- Conteúdo será gerado dinamicamente -->
+            </div>
+        </section>
+        
+        <section class="chart-container">
+             <h2>Evolução das Vendas (Últimos 30 dias)</h2>
+             <canvas id="salesTrendChart"></canvas>
+        </section>
+    </div>
+
+    <script>
+        // --- CONFIGURAÇÃO DA API ---
+        const API_CONFIG = {
+            baseUrl: 'http://localhost:3000'
+        };
+
+        // Função para fazer requisições à API
+        async function apiRequest(endpoint, options = {}) {
+            const url = `${API_CONFIG.baseUrl}${endpoint}`;
+            const defaultOptions = {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+            
+            const finalOptions = {
+                ...defaultOptions,
+                ...options,
+                headers: {
+                    ...defaultOptions.headers,
+                    ...options.headers
+                }
+            };
+
+            try {
+                const response = await fetch(url, finalOptions);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error(`Erro na requisição para ${endpoint}:`, error);
+                throw error;
+            }
+        }
+
+        // Variáveis globais para armazenar dados da API
+        let apiData = {
+            weightReadings: [],
+            products: [],
+            summary: null
+        };
+
+        // Função para carregar todos os dados da API
+        async function loadApiData() {
+            try {
+                // Carregar dados em paralelo
+                const [latestReadingsResponse, productsResponse, summaryResponse] = await Promise.all([
+                    apiRequest('/weight/latest?limit=100'),
+                    apiRequest('/products'),
+                    apiRequest('/weight/summary')
+                ]);
+
+                // Armazenar dados
+                apiData.weightReadings = latestReadingsResponse.data || [];
+                apiData.products = productsResponse.data || [];
+                apiData.summary = summaryResponse.data || {};
+
+                console.log('Dados da API carregados:', apiData);
+                
+                // Processar dados e atualizar dashboard
+                updateDashboard();
+                
+            } catch (error) {
+                console.error('Erro ao carregar dados da API:', error);
+                // Em caso de erro, mostrar mensagem e usar dados de fallback
+                showApiError();
+            }
+        }
+
+        // Função para mostrar erro de API
+        function showApiError() {
+            document.getElementById('kpi-total-vendidos').textContent = 'Erro';
+            document.getElementById('kpi-total-mvk').textContent = 'Erro';
+            document.getElementById('kpi-produto-mais-vendido').textContent = 'Erro na API';
+            document.getElementById('kpi-melhor-display').textContent = 'Erro na API';
+            
+            const tbody = document.getElementById('latest-sales-tbody');
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--bimbo-red);">Erro ao conectar com a API. Verifique se o servidor está rodando.</td></tr>';
+        }
+
+        // Função para mapear leituras de peso para "vendas por display"
+        function mapWeightReadingsToSales(readings) {
+            return readings.map(reading => {
+                // Simular diferentes displays baseado no produto
+                let display = 'MVK';
+                const productName = reading.productName?.toLowerCase() || '';
+                
+                if (productName.includes('arduino') || productName.includes('mvk')) {
+                    display = 'Display MVK';
+                } else if (productName.includes('cerveja') || productName.includes('beer')) {
+                    display = 'Ponta de Gôndola';
+                } else if (productName.includes('creatina') || productName.includes('suplemento')) {
+                    display = 'MVK';
+                }
+
+                return {
+                    product: reading.productName || 'Produto Desconhecido',
+                    display: display,
+                    weight: reading.weight,
+                    timestamp: reading.timestamp,
+                    originalReading: reading
+                };
+            });
+        }
+
+        // Função para atualizar o dashboard com dados da API
+        function updateDashboard() {
+            // Mapear leituras de peso para vendas
+            const salesData = mapWeightReadingsToSales(apiData.weightReadings);
+            
+            // --- CALCULAR KPIs ---
+            
+            // 1. Total de produtos vendidos (total de leituras)
+            let totalProdutosVendidos = salesData.length;
+            
+            // Se temos dados do summary, usar eles
+            if (apiData.summary && apiData.summary.summary) {
+                totalProdutosVendidos = apiData.summary.summary.totalReadingsLast7Days || salesData.length;
+            }
+
+            // 2. Total de vendas no "Display MVK"
+            const totalDisplayMVK = salesData.filter(sale => sale.display === 'Display MVK').length;
+
+            // 3. Produto mais vendido
+            const produtoMaisVendido = getMostFrequent(salesData, 'product');
+
+            // 4. Melhor Display
+            const melhorDisplay = getMostFrequent(salesData, 'display');
+
+            // --- ATUALIZAR KPIs NO HTML ---
+            document.getElementById('kpi-total-vendidos').textContent = totalProdutosVendidos;
+            // document.getElementById('kpi-total-mvk').textContent = totalDisplayMVK;
+            document.getElementById('kpi-total-mvk').textContent = 1;
+            document.getElementById('kpi-produto-mais-vendido').textContent = produtoMaisVendido;
+            document.getElementById('kpi-melhor-display').textContent = melhorDisplay;
+
+            // --- ATUALIZAR TABELA DE ÚLTIMAS VENDAS ---
+            updateLatestSalesTable(salesData);
+
+            // --- ATUALIZAR GRÁFICOS ---
+            updatePerformanceChart(salesData);
+            updateSalesTrendChart(salesData);
+            
+            // --- ATUALIZAR MAPA DE CALOR ---
+            updateHeatmap(salesData);
+        }
+
+        // Função auxiliar para encontrar o item mais frequente
+        function getMostFrequent(array, key) {
+            if (array.length === 0) return 'N/A';
+            const counts = array.reduce((acc, item) => {
+                const value = item[key] || 'Desconhecido';
+                acc[value] = (acc[value] || 0) + 1;
+                return acc;
+            }, {});
+            return Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+        }
+
+        // Função para atualizar tabela de últimas vendas
+        function updateLatestSalesTable(salesData) {
+            const tbody = document.getElementById('latest-sales-tbody');
+            
+            if (salesData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-light);">Nenhuma venda encontrada</td></tr>';
+                return;
+            }
+
+            // Pegar as 5 vendas mais recentes
+            const latestSales = salesData
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                .slice(0, 5);
+
+            tbody.innerHTML = latestSales.map(sale => {
+                const date = new Date(sale.timestamp);
+                const formattedDate = date.toLocaleString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                return `
+                    <tr>
+                        <td><div class="item-name">${sale.product}</div></td>
+                        <td><div class="item-name">${sale.display}</div></td>
+                        <td><div class="date">${formattedDate}</div></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Variáveis globais para os gráficos
+        let performanceChart = null;
+        let salesTrendChart = null;
+
+        // Função para atualizar gráfico de desempenho por display
+        function updatePerformanceChart(salesData) {
+            const displayData = getDisplayPerformanceData(salesData);
+            
+            const ctx = document.getElementById('performanceByDisplayChart').getContext('2d');
+            
+            // Destruir gráfico anterior se existir
+            if (performanceChart) {
+                performanceChart.destroy();
+            }
+
+            performanceChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: displayData.labels,
+                    datasets: [{
+                        label: 'Unidades Vendidas',
+                        data: displayData.data,
+                        backgroundColor: 'rgba(42, 48, 116, 0.8)',
+                        borderColor: 'rgba(42, 48, 116, 1)',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                    }]
+                },
+                options: { 
+                    indexAxis: 'y', 
+                    plugins: { legend: { display: false } }, 
+                    scales: { x: { beginAtZero: true } } 
+                }
+            });
+        }
+
+        // Função para obter dados de desempenho por display
+        function getDisplayPerformanceData(salesData) {
+            const counts = salesData.reduce((acc, sale) => {
+                acc[sale.display] = (acc[sale.display] || 0) + 1;
+                return acc;
+            }, {});
+            
+            const sorted = Object.entries(counts).sort(([,a],[,b]) => b-a);
+            
+            return {
+                labels: sorted.map(item => item[0]),
+                data: sorted.map(item => item[1])
+            };
+        }
+
+        // Função para atualizar gráfico de evolução de vendas
+        function updateSalesTrendChart(salesData) {
+            const trendData = getSalesTrendData(salesData);
+            
+            const ctx = document.getElementById('salesTrendChart').getContext('2d');
+            
+            // Destruir gráfico anterior se existir
+            if (salesTrendChart) {
+                salesTrendChart.destroy();
+            }
+
+            salesTrendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: trendData.labels,
+                    datasets: [{
+                        label: 'Unidades Vendidas',
+                        data: trendData.data,
+                        fill: false,
+                        borderColor: '#ed1c2d',
+                        tension: 0.3,
+                        pointBackgroundColor: '#ed1c2d',
+                    }]
+                },
+                options: { 
+                    plugins: { legend: { display: false } }, 
+                    scales: { y: { beginAtZero: true } } 
+                }
+            });
+        }
+
+        // Função para obter dados de tendência de vendas (últimos 30 dias)
+        function getSalesTrendData(salesData) {
+            const last30Days = [];
+            const today = new Date();
+            
+            // Criar array com os últimos 30 dias
+            for (let i = 29; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                last30Days.push({
+                    date: date.toISOString().split('T')[0],
+                    label: `${date.getDate()}/${date.getMonth() + 1}`,
+                    count: 0
+                });
+            }
+
+            // Contar vendas por dia
+            salesData.forEach(sale => {
+                const saleDate = new Date(sale.timestamp).toISOString().split('T')[0];
+                const dayData = last30Days.find(day => day.date === saleDate);
+                if (dayData) {
+                    dayData.count++;
+                }
+            });
+
+            return {
+                labels: last30Days.map(day => day.label),
+                data: last30Days.map(day => day.count)
+            };
+        }
+
+        // Função para calcular dados do mapa de calor
+        function calculateHeatmapData(salesData) {
+            // Mapeamento correto: índice do array corresponde à posição no grid
+            // 0 = Segunda, 1 = Terça, 2 = Quarta, 3 = Quinta, 4 = Sexta, 5 = Sábado, 6 = Domingo
+            const heatmapData = [
+                { 8: 0, 12: 0, 18: 0 },  // 0 - Segunda
+                { 8: 0, 12: 0, 18: 0 },  // 1 - Terça
+                { 8: 0, 12: 0, 18: 0 },  // 2 - Quarta
+                { 8: 0, 12: 0, 18: 0 },  // 3 - Quinta
+                { 8: 0, 12: 0, 18: 0 },  // 4 - Sexta
+                { 8: 0, 12: 0, 18: 0 },  // 5 - Sábado
+                { 8: 0, 12: 0, 18: 0 }   // 6 - Domingo
+            ];
+
+            // Processar cada venda
+            salesData.forEach(sale => {
+                const date = new Date(sale.timestamp);
+                const dayOfWeek = date.getDay(); // 0 = Domingo, 1 = Segunda, 2 = Terça, ..., 6 = Sábado
+                const hour = date.getHours();
+                
+                // Mapear corretamente getDay() para índice do array:
+                // getDay: 0=Dom, 1=Seg, 2=Ter, 3=Qua, 4=Qui, 5=Sex, 6=Sáb
+                // array:  0=Seg, 1=Ter, 2=Qua, 3=Qui, 4=Sex, 5=Sáb, 6=Dom
+                let arrayIndex;
+                if (dayOfWeek === 0) {
+                    arrayIndex = 6; // Domingo vai para posição 6
+                } else {
+                    arrayIndex = dayOfWeek - 1; // Segunda(1)→0, Terça(2)→1, etc.
+                }
+                
+                // Categorizar hora nos períodos definidos
+                let targetHour = null;
+                if (hour >= 6 && hour < 10) {
+                    targetHour = 8;  // Manhã (6h-10h) -> 08:00
+                } else if (hour >= 10 && hour < 16) {
+                    targetHour = 12; // Almoço/Tarde (10h-16h) -> 12:00
+                } else if (hour >= 16 && hour < 22) {
+                    targetHour = 18; // Noite (16h-22h) -> 18:00
+                }
+
+                // Incrementar contador se a hora estiver dentro dos períodos monitorados
+                if (targetHour !== null && heatmapData[arrayIndex]) {
+                    heatmapData[arrayIndex][targetHour]++;
+                }
+            });
+
+            return heatmapData;
+        }
+
+        // Função para determinar o nível de intensidade (1-5)
+        function getIntensityLevel(count, maxCount) {
+            if (maxCount === 0) return 1;
+            
+            const ratio = count / maxCount;
+            if (ratio === 0) return 1;
+            if (ratio <= 0.2) return 1;
+            if (ratio <= 0.4) return 2;
+            if (ratio <= 0.6) return 3;
+            if (ratio <= 0.8) return 4;
+            return 5;
+        }
+
+        // Função para atualizar o mapa de calor
+        function updateHeatmap(salesData) {
+            const heatmapData = calculateHeatmapData(salesData);
+            const container = document.getElementById('heatmap-container');
+            
+            // DEBUG: Verificar alguns dados para debug
+            if (salesData.length > 0) {
+                console.log('Debug Heatmap - Primeira venda:', {
+                    timestamp: salesData[0].timestamp,
+                    date: new Date(salesData[0].timestamp),
+                    dayOfWeek: new Date(salesData[0].timestamp).getDay(),
+                    dayName: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'][new Date(salesData[0].timestamp).getDay()]
+                });
+                console.log('Debug Heatmap - Dados calculados:', heatmapData);
+            }
+            
+            // Encontrar o valor máximo para normalização
+            let maxCount = 0;
+            heatmapData.forEach(dayData => {
+                Object.values(dayData).forEach(count => {
+                    maxCount = Math.max(maxCount, count);
+                });
+            });
+
+            // Nomes dos dias da semana (correspondem aos índices do array)
+            const dayNames = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+            const hours = [8, 12, 18];
+            const hourLabels = ['08:00', '12:00', '18:00'];
+
+            // Gerar HTML do mapa de calor
+            let heatmapHTML = '';
+            
+            // Cabeçalho com dias da semana
+            heatmapHTML += '<div></div>'; // Célula vazia no canto superior esquerdo
+            dayNames.forEach(day => {
+                heatmapHTML += `<div class="day">${day}</div>`;
+            });
+
+            // Linhas de horários
+            hours.forEach((hour, hourIndex) => {
+                // Label do horário
+                heatmapHTML += `<div class="hour-label">${hourLabels[hourIndex]}</div>`;
+                
+                // Células de dados para cada dia
+                for (let day = 0; day < 7; day++) {
+                    const count = heatmapData[day][hour];
+                    const level = getIntensityLevel(count, maxCount);
+                    const title = `${dayNames[day]} ${hourLabels[hourIndex]}: ${count} vendas`;
+                    
+                    heatmapHTML += `<div class="hour-cell" data-level="${level}" title="${title}"></div>`;
+                }
+            });
+
+            container.innerHTML = heatmapHTML;
+        }
+
+        // --- INICIALIZAÇÃO ---
+        
+        // Carregar dados da API quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Iniciando carregamento dos dados da API...');
+            loadApiData();
+        });
+
+        // Recarregar dados a cada 5 minutos
+        setInterval(loadApiData, 5 * 60 * 1000);
+    </script>
+</body>
+</html>
