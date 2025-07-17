@@ -1,6 +1,6 @@
 const Client = require('../models/Client')
 const { v4: uuidv4 } = require('uuid')
-const supabaseConfig = require('../database/supabase.config')
+const databaseConfig = require('../database/database.config')
 
 class ClientRepository {
   constructor() {
@@ -13,7 +13,7 @@ class ClientRepository {
 
   // Verificar se deve usar memória (lazy check)
   _shouldUseMemory() {
-    return !supabaseConfig.isConnected()
+    return !databaseConfig.isConnected()
   }
 
   // Inicializar clientes padrão (apenas para modo de desenvolvimento)
@@ -89,7 +89,7 @@ class ClientRepository {
 
     try {
       const dbData = this._mapToDb(client)
-      const result = await supabaseConfig.query(
+      const result = await databaseConfig.query(
         `INSERT INTO ${this.tableName} (id, client_id, client_secret, name, is_active, created_at, updated_at)
          VALUES ($1, $2, $3, $4, $5, $6, $7)
          RETURNING *`,
@@ -112,7 +112,7 @@ class ClientRepository {
     }
 
     try {
-      const result = await supabaseConfig.query(
+      const result = await databaseConfig.query(
         `SELECT * FROM ${this.tableName} WHERE id = $1`,
         [id]
       )
@@ -136,7 +136,7 @@ class ClientRepository {
     }
 
     try {
-      const result = await supabaseConfig.query(
+      const result = await databaseConfig.query(
         `SELECT * FROM ${this.tableName} WHERE client_id = $1`,
         [clientId]
       )
@@ -159,7 +159,7 @@ class ClientRepository {
     }
 
     try {
-      const result = await supabaseConfig.query(
+      const result = await databaseConfig.query(
         `SELECT * FROM ${this.tableName} 
          WHERE client_id = $1 AND client_secret = $2 AND is_active = true`,
         [clientId, clientSecret]
@@ -179,7 +179,7 @@ class ClientRepository {
     }
 
     try {
-      const result = await supabaseConfig.query(
+      const result = await databaseConfig.query(
         `SELECT * FROM ${this.tableName} ORDER BY created_at DESC`
       )
 
@@ -229,7 +229,7 @@ class ClientRepository {
       }
 
       const dbData = this._mapToDb(updatedClient)
-      const result = await supabaseConfig.query(
+      const result = await databaseConfig.query(
         `UPDATE ${this.tableName} 
          SET client_id = $2, client_secret = $3, name = $4, is_active = $5, updated_at = $6
          WHERE id = $1
@@ -258,7 +258,7 @@ class ClientRepository {
     }
 
     try {
-      const result = await supabaseConfig.query(
+      const result = await databaseConfig.query(
         `DELETE FROM ${this.tableName} WHERE id = $1`,
         [id]
       )
@@ -282,7 +282,7 @@ class ClientRepository {
     }
 
     try {
-      const result = await supabaseConfig.query(`
+      const result = await databaseConfig.query(`
         SELECT 
           COUNT(*) as total,
           COUNT(*) FILTER (WHERE is_active = true) as active,

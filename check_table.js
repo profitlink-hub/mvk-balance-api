@@ -1,12 +1,12 @@
-const supabaseConfig = require('./src/infra/database/supabase.config');
+const databaseConfig = require('./src/infra/database/database.config');
 
 (async () => {
   try {
     console.log('🔌 Conectando ao banco...');
-    await supabaseConfig.initialize();
+    await databaseConfig.initialize();
     
     console.log('📋 Verificando estrutura da tabela products...');
-    const result = await supabaseConfig.query(`
+    const result = await databaseConfig.query(`
       SELECT column_name, data_type, is_nullable, column_default
       FROM information_schema.columns 
       WHERE table_name = 'products' 
@@ -21,11 +21,11 @@ const supabaseConfig = require('./src/infra/database/supabase.config');
     });
     
     console.log('\n🔍 Verificando se há produtos na tabela...');
-    const countResult = await supabaseConfig.query('SELECT COUNT(*) as total FROM products');
+    const countResult = await databaseConfig.query('SELECT COUNT(*) as total FROM products');
     console.log(`Total de produtos: ${countResult.rows[0].total}`);
     
     if (countResult.rows[0].total > 0) {
-      const productsResult = await supabaseConfig.query('SELECT * FROM products LIMIT 5');
+      const productsResult = await databaseConfig.query('SELECT * FROM products LIMIT 5');
       console.log('\n📦 Produtos existentes:');
       productsResult.rows.forEach(product => {
         console.log(`  - ID: ${product.id}, Nome: ${product.name}, Peso: ${product.weight}`);
@@ -36,7 +36,7 @@ const supabaseConfig = require('./src/infra/database/supabase.config');
     console.error('❌ Erro:', error.message);
     console.error('Stack:', error.stack);
   } finally {
-    await supabaseConfig.close();
+    await databaseConfig.close();
     process.exit(0);
   }
 })(); 

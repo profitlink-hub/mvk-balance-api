@@ -1,6 +1,6 @@
 const Product = require('../models/Product')
 const { v4: uuidv4 } = require('uuid')
-const supabaseConfig = require('../database/supabase.config')
+const databaseConfig = require('../database/database.config')
 
 class ProductRepository {
   constructor() {
@@ -12,7 +12,7 @@ class ProductRepository {
 
   // Verificar se deve usar memória (lazy check)
   _shouldUseMemory() {
-    return !supabaseConfig.isConnected()
+    return !databaseConfig.isConnected()
   }
 
   // Converter dados do banco para modelo
@@ -102,7 +102,7 @@ class ProductRepository {
 
     try {
       const dbData = this._mapToDb(product)
-      const result = await supabaseConfig.query(
+      const result = await databaseConfig.query(
         `INSERT INTO ${this.tableName} (id, name, weight, expected_weight, arduino_id, arduino_timestamp, registered_at, source, created_at, updated_at)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
          RETURNING *`,
@@ -136,7 +136,7 @@ class ProductRepository {
     }
 
     try {
-      const result = await supabaseConfig.query(
+      const result = await databaseConfig.query(
         `SELECT * FROM ${this.tableName} WHERE id = $1`,
         [id]
       )
@@ -160,7 +160,7 @@ class ProductRepository {
     }
 
     try {
-      const result = await supabaseConfig.query(
+      const result = await databaseConfig.query(
         `SELECT * FROM ${this.tableName} WHERE LOWER(name) = LOWER($1)`,
         [name]
       )
@@ -185,7 +185,7 @@ class ProductRepository {
     }
 
     try {
-      const result = await supabaseConfig.query(
+      const result = await databaseConfig.query(
         `SELECT * FROM ${this.tableName} 
          WHERE LOWER(name) LIKE LOWER($1)
          ORDER BY name`,
@@ -206,7 +206,7 @@ class ProductRepository {
     }
 
     try {
-      const result = await supabaseConfig.query(
+      const result = await databaseConfig.query(
         `SELECT * FROM ${this.tableName} ORDER BY name`
       )
 
@@ -266,7 +266,7 @@ class ProductRepository {
       }
 
       const dbData = this._mapToDb(updatedProduct)
-      const result = await supabaseConfig.query(
+      const result = await databaseConfig.query(
         `UPDATE ${this.tableName} 
          SET name = $2, weight = $3, expected_weight = $4, arduino_id = $5, arduino_timestamp = $6, registered_at = $7, source = $8, updated_at = $9
          WHERE id = $1
@@ -300,7 +300,7 @@ class ProductRepository {
     }
 
     try {
-      const result = await supabaseConfig.query(
+      const result = await databaseConfig.query(
         `DELETE FROM ${this.tableName} WHERE id = $1`,
         [id]
       )
@@ -326,7 +326,7 @@ class ProductRepository {
     }
 
     try {
-      const result = await supabaseConfig.query(`
+      const result = await databaseConfig.query(`
         SELECT 
           COUNT(*) as total,
           AVG(weight) as average_weight,
@@ -367,7 +367,7 @@ class ProductRepository {
       const createdProducts = []
       
       // Usar transação para inserção em lote
-      await supabaseConfig.query('BEGIN')
+      await databaseConfig.query('BEGIN')
       
       for (const productData of productsData) {
         try {
@@ -378,10 +378,10 @@ class ProductRepository {
         }
       }
       
-      await supabaseConfig.query('COMMIT')
+      await databaseConfig.query('COMMIT')
       return createdProducts
     } catch (error) {
-      await supabaseConfig.query('ROLLBACK')
+      await databaseConfig.query('ROLLBACK')
       console.error('Erro na criação em lote de produtos:', error)
       return []
     }

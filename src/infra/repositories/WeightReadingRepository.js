@@ -1,6 +1,6 @@
 const WeightReading = require('../models/WeightReading')
 const { v4: uuidv4 } = require('uuid')
-const supabaseConfig = require('../database/supabase.config')
+const databaseConfig = require('../database/database.config')
 
 class WeightReadingRepository {
   constructor() {
@@ -12,7 +12,7 @@ class WeightReadingRepository {
 
   // Verificar se deve usar memória (lazy check)
   _shouldUseMemory() {
-    return !supabaseConfig.isConnected()
+    return !databaseConfig.isConnected()
   }
 
   // Converter dados do banco para modelo
@@ -84,7 +84,7 @@ class WeightReadingRepository {
 
     try {
       const dbData = this._mapToDb(reading)
-      const result = await supabaseConfig.query(
+      const result = await databaseConfig.query(
         `INSERT INTO ${this.tableName} (id, product_name, weight, action, arduino_id, day_of_week, timestamp, created_at)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
          RETURNING *`,
@@ -114,7 +114,7 @@ class WeightReadingRepository {
     }
 
     try {
-      const result = await supabaseConfig.query(
+      const result = await databaseConfig.query(
         `SELECT * FROM ${this.tableName} WHERE id = $1`,
         [id]
       )
@@ -188,7 +188,7 @@ class WeightReadingRepository {
         }
       }
 
-      const result = await supabaseConfig.query(query, params)
+      const result = await databaseConfig.query(query, params)
       return result.rows.map(row => this._mapToModel(row))
     } catch (error) {
       console.error('Erro ao listar leituras:', error)
@@ -208,7 +208,7 @@ class WeightReadingRepository {
     }
 
     try {
-      const result = await supabaseConfig.query(
+      const result = await databaseConfig.query(
         `SELECT * FROM ${this.tableName}
          WHERE LOWER(product_name) = LOWER($1)
          ORDER BY timestamp DESC
@@ -234,7 +234,7 @@ class WeightReadingRepository {
     }
 
     try {
-      const result = await supabaseConfig.query(
+      const result = await databaseConfig.query(
         `SELECT * FROM ${this.tableName}
          WHERE timestamp BETWEEN $1 AND $2
          ORDER BY timestamp DESC`,
@@ -317,7 +317,7 @@ class WeightReadingRepository {
         params.push(options.startDate, options.endDate)
       }
 
-      const result = await supabaseConfig.query(query, params)
+      const result = await databaseConfig.query(query, params)
       const row = result.rows[0]
 
       return {
@@ -383,7 +383,7 @@ class WeightReadingRepository {
     }
 
     try {
-      const result = await supabaseConfig.query(`
+      const result = await databaseConfig.query(`
         SELECT 
           product_name,
           COUNT(*) as total_readings,
@@ -435,7 +435,7 @@ class WeightReadingRepository {
     }
 
     try {
-      const result = await supabaseConfig.query(`
+      const result = await databaseConfig.query(`
         DELETE FROM ${this.tableName}
         WHERE id NOT IN (
           SELECT id FROM ${this.tableName}
@@ -465,7 +465,7 @@ class WeightReadingRepository {
     }
 
     try {
-      const result = await supabaseConfig.query(
+      const result = await databaseConfig.query(
         `DELETE FROM ${this.tableName} WHERE LOWER(product_name) = LOWER($1)`,
         [productName]
       )

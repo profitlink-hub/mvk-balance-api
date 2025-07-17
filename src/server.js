@@ -13,13 +13,14 @@ const path = require('path')
 const GeneralMiddleware = require('./middlewares/GeneralMiddleware')
 
 // Importar configuração do banco
-const supabaseConfig = require('./infra/database/supabase.config')
+const databaseConfig = require('./infra/database/database.config')
 
 // Importar rotas
 const ProductRoutes = require('./routes/ProductRoutes')
 const WeightRoutes = require('./routes/WeightRoutes')
 const AuthRoutes = require('./routes/AuthRoutes')
 const ArduinoRoutes = require('./routes/ArduinoRoutes')
+const ShelfRoutes = require('./routes/ShelfRoutes')
 
 class Server {
   constructor() {
@@ -33,22 +34,24 @@ class Server {
   // Inicializar banco de dados
   async initializeDatabase() {
     try {
-      console.log('🔌 Inicializando conexão com Supabase...')
-      const connected = await supabaseConfig.initialize()
+      console.log('🔌 Inicializando conexão com PostgreSQL...')
+      const connected = await databaseConfig.initialize()
       
       if (connected) {
-        console.log('✅ Conectado ao Supabase')
+        console.log('✅ Conectado ao PostgreSQL')
         
         // Criar tabelas se necessário
-        const tablesCreated = await supabaseConfig.createTables()
+        const tablesCreated = await databaseConfig.createTables()
         if (tablesCreated) {
           console.log('✅ Tabelas verificadas/criadas com sucesso')
         }
       } else {
-        console.log('⚠️  Continuando em modo de desenvolvimento (sem Supabase)')
-        console.log('💡 Para conectar ao Supabase, configure as variáveis:')
-        console.log('   - SUPABASE_PASSWORD: Senha do banco')
-        console.log('   - SUPABASE_ANON_KEY: Chave anônima (opcional)')
+        console.log('⚠️  Continuando em modo de desenvolvimento (sem PostgreSQL)')
+        console.log('💡 Para conectar ao PostgreSQL, configure as variáveis:')
+        console.log('   - DB_PASSWORD: Senha do banco')
+        console.log('   - DB_HOST: Host do banco')
+        console.log('   - DB_PORT: Porta do banco')
+        console.log('   - DB_NAME: Nome do banco')
       }
       
       return connected
@@ -301,6 +304,7 @@ class Server {
           products: '/products',
           weight: '/weight',
           arduino: '/arduino',
+          shelfs: '/shelfs',
           health: '/health (GET - status da API)',
           healthCheck: 'POST /health (Arduino test)',
           documentation: '/api-docs',
@@ -325,6 +329,7 @@ class Server {
     this.app.use('/products', ProductRoutes)
     this.app.use('/weight', WeightRoutes)
     this.app.use('/arduino', ArduinoRoutes)
+    this.app.use('/shelfs', ShelfRoutes)
 
     // Rota de health check do Arduino (diretamente em /health)
     const ArduinoController = require('./controllers/ArduinoController')

@@ -1,58 +1,54 @@
-const { createClient } = require('@supabase/supabase-js')
+const { Client } = require('pg')
 
-class SupabaseConfig {
+class DatabaseConfig {
   constructor() {
-    // String de conexão direta PostgreSQL
-    this.connectionString = 'postgresql://postgres.gvdmggfzmgsvgebnuzcx:mvk2025@aws-0-us-east-2.pooler.supabase.com:6543/postgres'
+    // Configuração de conexão PostgreSQL
+    this.config = {
+      user: process.env.DB_USER || 'mvk',
+      password: process.env.DB_PASSWORD || 'profitlink',
+      host: process.env.DB_HOST || 'mvk-mvkbalanca-ffzgfq',
+      port: parseInt(process.env.DB_PORT) || 5432,
+      database: process.env.DB_NAME || 'mvk',
+      // SSL configurável via variável de ambiente (padrão: desabilitado)
+      ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
+    }
 
-    // URL do Supabase (construída a partir do projeto)
-    this.supabaseUrl = 'https://gvdmggfzmgsvgebnuzcx.supabase.co'
-    
-    // Anon key (deve ser fornecida via variável de ambiente)
-    this.supabaseAnonKey = process.env.SUPABASE_ANON_KEY || ''
+    // String de conexão PostgreSQL
+    this.connectionString = `postgresql://${this.config.user}:${this.config.password}@${this.config.host}:${this.config.port}/${this.config.database}`
 
-    // Client do Supabase
-    this.client = null
+    // Client do PostgreSQL
     this.pgClient = null
   }
 
-  // Inicializar conexão com Supabase
+  // Inicializar conexão com PostgreSQL
   async initialize() {
     try {
-      // Client do Supabase para operações REST
-      if (this.supabaseAnonKey) {
-        this.client = createClient(this.supabaseUrl, this.supabaseAnonKey)
-        console.log('✅ Supabase Client inicializado')
-      }
-
-      // Client PostgreSQL direto usando string de conexão
-      if (this.connectionString && this.connectionString.includes('postgresql://')) {
-        const { Client } = require('pg')
-        this.pgClient = new Client({
-          connectionString: this.connectionString,
-          ssl: {
-            rejectUnauthorized: false
-          }
-        })
-
-        await this.pgClient.connect()
-        console.log('✅ PostgreSQL Client conectado via string de conexão')
-        console.log(`🔗 Conexão: ${this.connectionString.replace(/:[^:]*@/, ':****@')}`) // Mascarar senha nos logs
-      }
-
-      return this.pgClient !== null || this.client !== null
-    } catch (error) {
-      console.error('❌ Erro ao conectar com Supabase:', error.message)
+      console.log('🔗 Tentando conectar com as seguintes configurações:')
+      console.log(`   Host: ${this.config.host}`)
+      console.log(`   Porta: ${this.config.port}`)
+      console.log(`   Database: ${this.config.database}`)
+      console.log(`   Usuário: ${this.config.user}`)
+      console.log(`   SSL: ${this.config.ssl ? 'habilitado' : 'desabilitado'}`)
       
-      // Fallback para modo de desenvolvimento sem Supabase
-      console.log('⚠️  Iniciando em modo de desenvolvimento (sem Supabase)')
+      // Client PostgreSQL direto
+      this.pgClient = new Client(this.config)
+
+      await this.pgClient.connect()
+      console.log('✅ PostgreSQL Client conectado com sucesso!')
+      
+      return true
+    } catch (error) {
+      console.error('❌ Erro ao conectar com PostgreSQL:', error.message)
+      console.log('🔍 Detalhes do erro:')
+      console.log('   - Verifique se o servidor PostgreSQL está rodando')
+      console.log('   - Confirme as credenciais de acesso')
+      console.log('   - Verifique se a porta está acessível')
+      console.log('   - Para SSL, defina DB_SSL=true se necessário')
+      
+      // Fallback para modo de desenvolvimento
+      console.log('⚠️  Iniciando em modo de desenvolvimento (sem PostgreSQL)')
       return false
     }
-  }
-
-  // Obter client do Supabase
-  getClient() {
-    return this.client
   }
 
   // Obter client PostgreSQL
@@ -62,7 +58,7 @@ class SupabaseConfig {
 
   // Verificar se a conexão está ativa
   isConnected() {
-    return this.client !== null || this.pgClient !== null
+    return this.pgClient !== null
   }
 
   // Executar query SQL direta
@@ -76,26 +72,6 @@ class SupabaseConfig {
       return result
     } catch (error) {
       console.error('❌ Erro na query SQL:', error.message)
-      throw error
-    }
-  }
-
-  // Executar query via Supabase REST API
-  async rpc(functionName, params = {}) {
-    if (!this.client) {
-      throw new Error('Supabase client não está conectado')
-    }
-
-    try {
-      const { data, error } = await this.client.rpc(functionName, params)
-      
-      if (error) {
-        throw error
-      }
-
-      return data
-    } catch (error) {
-      console.error('❌ Erro no RPC Supabase:', error.message)
       throw error
     }
   }
@@ -166,9 +142,10 @@ class SupabaseConfig {
   // Obter informações da conexão
   getConnectionInfo() {
     return {
-      connectionString: this.connectionString ? this.connectionString.replace(/:[^:]*@/, ':****@') : null,
-      supabaseUrl: this.supabaseUrl,
-      hasSupabaseClient: this.client !== null,
+      host: this.config.host,
+      port: this.config.port,
+      database: this.config.database,
+      user: this.config.user,
       hasPostgresClient: this.pgClient !== null,
       isConnected: this.isConnected()
     }
@@ -212,6 +189,6 @@ class SupabaseConfig {
 }
 
 // Instância singleton
-const supabaseConfig = new SupabaseConfig()
+const databaseConfig = new DatabaseConfig()
 
-module.exports = supabaseConfig 
+module.exports = databaseConfig 
