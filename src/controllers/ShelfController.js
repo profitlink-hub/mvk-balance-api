@@ -92,9 +92,14 @@ class ShelfController {
   // POST /shelfs - Criar nova pratileira
   async createShelf(req, res) {
     try {
+      console.log('📥 Dados recebidos:', JSON.stringify(req.body, null, 2))
+      
       // Validar dados de entrada
       const validation = ShelfValidator.validateCreate(req.body)
+      console.log('✅ Validação:', validation)
+      
       if (!validation.valid) {
+        console.log('❌ Dados inválidos:', validation.errors)
         return res.status(400).json({
           success: false,
           error: 'Dados inválidos',
@@ -104,8 +109,10 @@ class ShelfController {
 
       // Sanitizar dados
       const sanitizedData = ShelfValidator.sanitize(req.body)
+      console.log('🧹 Dados sanitizados:', JSON.stringify(sanitizedData, null, 2))
 
       const result = await this.shelfService.createShelf(sanitizedData)
+      console.log('📊 Resultado do service:', JSON.stringify(result, null, 2))
       
       if (result.success) {
         res.status(201).json(result)
@@ -114,10 +121,12 @@ class ShelfController {
         res.status(statusCode).json(result)
       }
     } catch (error) {
-      console.error('Erro em createShelf:', error)
+      console.error('❌ Erro em createShelf:', error)
+      console.error('📍 Stack trace:', error.stack)
       res.status(500).json({
         success: false,
-        error: 'Erro interno do servidor'
+        error: 'Erro interno do servidor',
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
       })
     }
   }
@@ -331,6 +340,37 @@ class ShelfController {
       }
     } catch (error) {
       console.error('Erro em getStatistics:', error)
+      res.status(500).json({
+        success: false,
+        error: 'Erro interno do servidor'
+      })
+    }
+  }
+
+  // DEBUG: Verificar consistência entre shelf_items e campo JSON
+  async debugShelfConsistency(req, res) {
+    try {
+      const { id } = req.params
+
+      // Validar ID
+      const validation = ShelfValidator.validateId(id)
+      if (!validation.valid) {
+        return res.status(400).json({
+          success: false,
+          error: 'Dados inválidos',
+          details: validation.errors
+        })
+      }
+
+      const result = await this.shelfService.shelfRepository.debugShelfConsistency(id)
+      
+      res.status(200).json({
+        success: true,
+        data: result,
+        message: 'Debug de consistência executado'
+      })
+    } catch (error) {
+      console.error('Erro em debugShelfConsistency:', error)
       res.status(500).json({
         success: false,
         error: 'Erro interno do servidor'

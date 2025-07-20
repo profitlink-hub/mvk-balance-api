@@ -1,6 +1,6 @@
 class ShelfValidator {
   // Validar dados para criação de pratileira
-  validateCreate(data) {
+  static validateCreate(data) {
     const errors = []
 
     // Validar nome
@@ -41,7 +41,7 @@ class ShelfValidator {
   }
 
   // Validar dados para atualização de pratileira
-  validateUpdate(data) {
+  static validateUpdate(data) {
     const errors = []
 
     // Nome é opcional na atualização, mas deve ser válido se fornecido
@@ -91,7 +91,7 @@ class ShelfValidator {
   }
 
   // Validar ID de pratileira
-  validateId(id) {
+  static validateId(id) {
     const errors = []
 
     if (!id) {
@@ -109,7 +109,7 @@ class ShelfValidator {
   }
 
   // Validar dados para adição de produto à pratileira
-  validateAddProduct(data) {
+  static validateAddProduct(data) {
     const errors = []
 
     if (!data.productId) {
@@ -133,20 +133,51 @@ class ShelfValidator {
   }
 
   // Sanitizar dados de entrada
-  sanitize(data) {
+  static sanitize(data) {
     const sanitized = {}
 
     if (data.name !== undefined) {
       sanitized.name = data.name.toString().trim()
     }
 
+    if (data.description !== undefined) {
+      sanitized.description = data.description ? data.description.toString().trim() : null
+    }
+
+    if (data.location !== undefined) {
+      sanitized.location = data.location ? data.location.toString().trim() : null
+    }
+
+    if (data.maxCapacity !== undefined) {
+      sanitized.maxCapacity = data.maxCapacity ? parseFloat(data.maxCapacity) : null
+    }
+
+    if (data.isActive !== undefined) {
+      sanitized.isActive = Boolean(data.isActive)
+    }
+
     if (data.products !== undefined && Array.isArray(data.products)) {
-      sanitized.products = data.products.map(product => ({
-        productId: product.productId.toString().trim(),
-        quantity: parseInt(product.quantity),
-        totalWeight: product.totalWeight ? parseFloat(product.totalWeight) : undefined,
-        product: product.product // Manter dados do produto se fornecidos
-      }))
+      sanitized.products = data.products.map(product => {
+        const sanitizedProduct = {}
+        
+        if (product.productId !== undefined) {
+          sanitizedProduct.productId = product.productId.toString().trim()
+        }
+        
+        if (product.quantity !== undefined) {
+          sanitizedProduct.quantity = parseInt(product.quantity)
+        }
+        
+        if (product.totalWeight !== undefined) {
+          sanitizedProduct.totalWeight = parseFloat(product.totalWeight)
+        }
+        
+        if (product.product !== undefined) {
+          sanitizedProduct.product = product.product
+        }
+        
+        return sanitizedProduct
+      })
     }
 
     if (data.totalWeight !== undefined) {
@@ -157,7 +188,7 @@ class ShelfValidator {
   }
 
   // Calcular peso total da pratileira
-  calculateTotalWeight(products) {
+  static calculateTotalWeight(products) {
     if (!Array.isArray(products) || products.length === 0) {
       return 0
     }
@@ -168,7 +199,7 @@ class ShelfValidator {
   }
 
   // Validar busca por nome
-  validateSearchName(name) {
+  static validateSearchName(name) {
     const errors = []
 
     if (!name) {

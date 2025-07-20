@@ -98,15 +98,25 @@ class DatabaseConfig {
     try {
       const fs = require('fs')
       const path = require('path')
-      const sqlPath = path.join(__dirname, 'create_tables.sql')
+      
+      // Tentar usar o script completo primeiro, depois o original como fallback
+      const completeSqlPath = path.join(__dirname, 'create_tables_complete.sql')
+      const originalSqlPath = path.join(__dirname, 'create_tables.sql')
+      
+      let sqlPath = completeSqlPath
+      if (!fs.existsSync(completeSqlPath)) {
+        console.log('⚠️  Script completo não encontrado, usando script original')
+        sqlPath = originalSqlPath
+      }
       
       if (fs.existsSync(sqlPath)) {
         const sql = fs.readFileSync(sqlPath, 'utf8')
         await this.pgClient.query(sql)
         console.log('✅ Tabelas criadas/verificadas com sucesso')
+        console.log(`📄 Script usado: ${path.basename(sqlPath)}`)
         return true
       } else {
-        console.log('⚠️  Arquivo create_tables.sql não encontrado')
+        console.log('⚠️  Nenhum arquivo SQL encontrado')
         return false
       }
     } catch (error) {

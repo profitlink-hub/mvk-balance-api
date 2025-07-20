@@ -2,15 +2,23 @@ class Shelf {
   constructor({ 
     id, 
     name, 
+    description,
     products = [],
     totalWeight = 0,
+    maxCapacity,
+    location,
+    isActive = true,
     createdAt = new Date(), 
     updatedAt = new Date() 
   }) {
     this.id = id
     this.name = name
+    this.description = description
     this.products = products
     this.totalWeight = totalWeight
+    this.maxCapacity = maxCapacity
+    this.location = location
+    this.isActive = isActive
     this.createdAt = createdAt
     this.updatedAt = updatedAt
   }
@@ -139,8 +147,12 @@ class Shelf {
     return {
       id: this.id,
       name: this.name,
+      description: this.description,
       products: this.products || [],
       totalWeight: this.totalWeight,
+      maxCapacity: this.maxCapacity,
+      location: this.location,
+      isActive: this.isActive,
       totalItems: this.getTotalItems(),
       isEmpty: this.isEmpty(),
       createdAt: this.createdAt,
@@ -153,8 +165,12 @@ class Shelf {
     return {
       id: this.id,
       name: this.name,
+      description: this.description,
       products: this.products || [],
       totalWeight: this.totalWeight,
+      maxCapacity: this.maxCapacity,
+      location: this.location,
+      isActive: this.isActive,
       statistics: {
         totalItems: this.getTotalItems(),
         uniqueProducts: this.products ? this.products.length : 0,
@@ -169,7 +185,7 @@ class Shelf {
 
   // Método para debug
   toString() {
-    return `Shelf(id=${this.id}, name=${this.name}, products=${this.products?.length || 0}, weight=${this.totalWeight}g)`
+    return `Shelf(id=${this.id}, name=${this.name}, location=${this.location || 'N/A'}, products=${this.products?.length || 0}, weight=${this.totalWeight}g, active=${this.isActive})`
   }
 }
 

@@ -412,4 +412,9 @@ router.get('/statistics', (req, res) => {
   shelfController.getStatistics(req, res)
 })
 
+// DEBUG: Verificar consistência de dados
+router.get('/:id/debug', (req, res) => {
+  shelfController.debugShelfConsistency(req, res)
+})
+
 module.exports = router 
