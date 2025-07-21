@@ -9,7 +9,17 @@ class ShelfController {
   // GET /shelfs - Listar todas as pratileiras
   async getAllShelfs(req, res) {
     try {
-      const result = await this.shelfService.getAllShelfs()
+      const filters = {}
+      
+      // Extrair filtro de status da query string
+      if (req.query.status) {
+        const validStatuses = ['all', 'active', 'inactive']
+        if (validStatuses.includes(req.query.status)) {
+          filters.status = req.query.status
+        }
+      }
+      
+      const result = await this.shelfService.getAllShelfs(filters)
       
       if (result.success) {
         res.status(200).json(result)

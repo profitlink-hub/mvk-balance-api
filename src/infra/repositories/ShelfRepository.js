@@ -272,14 +272,36 @@ class ShelfRepository {
   }
 
   // Buscar todas as pratileiras
-  async findAll() {
+  async findAll(filters = {}) {
     if (this._shouldUseMemory()) {
-      return Array.from(this.shelfs.values())
+      let shelfs = Array.from(this.shelfs.values())
+      
+      // Aplicar filtro de status se fornecido
+      if (filters.status !== undefined) {
+        if (filters.status === 'active') {
+          shelfs = shelfs.filter(shelf => shelf.isActive === true)
+        } else if (filters.status === 'inactive') {
+          shelfs = shelfs.filter(shelf => shelf.isActive === false)
+        }
+        // Se status = 'all' ou qualquer outro valor, retorna todos
+      }
+      
+      return shelfs
     }
 
     try {
+      let whereClause = '1=1' // Sempre verdadeiro por padrão
+      
+      // Aplicar filtro de status se fornecido
+      if (filters.status === 'active') {
+        whereClause = 'is_active = true'
+      } else if (filters.status === 'inactive') {
+        whereClause = 'is_active = false'
+      }
+      // Se status = 'all' ou não fornecido, busca todas
+      
       const result = await databaseConfig.query(
-        `SELECT * FROM ${this.tableName} WHERE is_active = true ORDER BY created_at DESC`
+        `SELECT * FROM ${this.tableName} WHERE ${whereClause} ORDER BY created_at DESC`
       )
 
       return result.rows.map(row => this._mapToModel(row))

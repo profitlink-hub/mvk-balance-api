@@ -73,15 +73,34 @@ class ShelfService {
   }
 
   // Buscar todas as pratileiras
-  async getAllShelfs() {
+  async getAllShelfs(filters = {}) {
     try {
-      const shelfs = await this.shelfRepository.findAll()
+      const shelfs = await this.shelfRepository.findAll(filters)
+      
+      // Preparar mensagem baseada no filtro
+      let message = 'Pratileiras encontradas'
+      if (shelfs.length === 0) {
+        if (filters.status === 'active') {
+          message = 'Nenhuma pratileira ativa encontrada'
+        } else if (filters.status === 'inactive') {
+          message = 'Nenhuma pratileira inativa encontrada'
+        } else {
+          message = 'Nenhuma pratileira encontrada'
+        }
+      } else {
+        if (filters.status === 'active') {
+          message = 'Pratileiras ativas encontradas'
+        } else if (filters.status === 'inactive') {
+          message = 'Pratileiras inativas encontradas'
+        }
+      }
       
       return {
         success: true,
         data: shelfs.map(shelf => shelf.toBasicApiResponse()),
         count: shelfs.length,
-        message: shelfs.length > 0 ? 'Pratileiras encontradas' : 'Nenhuma pratileira encontrada'
+        filters: filters,
+        message: message
       }
     } catch (error) {
       console.error('Erro no ShelfService.getAllShelfs:', error)
@@ -206,6 +225,10 @@ class ShelfService {
       
       if (updateData.name !== undefined) {
         updatePayload.name = updateData.name.trim()
+      }
+
+      if (updateData.isActive !== undefined) {
+        updatePayload.isActive = updateData.isActive
       }
 
       // Se produtos foram fornecidos, validar e recalcular peso

@@ -19,6 +19,14 @@ const shelfController = new ShelfController()
  *     security:
  *       - ClientAuth: []
  *         ClientSecret: []
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [all, active, inactive]
+ *         description: Filtrar pratileiras por status (padrão é 'all')
+ *         example: all
  *     responses:
  *       200:
  *         description: Lista de pratileiras obtida com sucesso

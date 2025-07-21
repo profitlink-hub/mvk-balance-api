@@ -84,6 +84,13 @@ class ShelfValidator {
       }
     }
 
+    // Validar isActive se fornecido
+    if (data.isActive !== undefined) {
+      if (typeof data.isActive !== 'boolean') {
+        errors.push('isActive deve ser um valor booleano')
+      }
+    }
+
     return {
       valid: errors.length === 0,
       errors

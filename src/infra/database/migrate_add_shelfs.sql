@@ -233,17 +233,6 @@ JOIN shelfs s ON s.id = si.shelf_id
 ORDER BY s.name, si.position NULLS LAST, p.name;
 
 -- ================================
--- DADOS DE EXEMPLO
--- ================================
-
--- Inserir pratileiras de exemplo
-INSERT INTO shelfs (name, description, max_capacity, location) VALUES 
-    ('Pratileira Central A', 'Pratileira principal do corredor central', 50000.00, 'Corredor Central'),
-    ('Pratileira Lateral B', 'Pratileira lateral direita', 30000.00, 'Lateral Direita'),
-    ('Pratileira de Teste', 'Pratileira para testes e demonstrações', 10000.00, 'Área de Testes')
-ON CONFLICT (name) DO NOTHING;
-
--- ================================
 -- COMENTÁRIOS PARA DOCUMENTAÇÃO
 -- ================================
 
