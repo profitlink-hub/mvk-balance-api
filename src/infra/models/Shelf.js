@@ -183,6 +183,28 @@ class Shelf {
     }
   }
 
+  // Converter para resposta básica da API (sem produtos)
+  toBasicApiResponse() {
+    return {
+      id: this.id,
+      name: this.name,
+      description: this.description,
+      totalWeight: this.totalWeight,
+      maxCapacity: this.maxCapacity,
+      location: this.location,
+      isActive: this.isActive,
+      statistics: {
+        totalItems: this.getTotalItems(),
+        uniqueProducts: this.products ? this.products.length : 0,
+        isEmpty: this.isEmpty(),
+        averageWeightPerProduct: this.products && this.products.length > 0 ? 
+          this.totalWeight / this.products.length : 0
+      },
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt
+    }
+  }
+
   // Método para debug
   toString() {
     return `Shelf(id=${this.id}, name=${this.name}, location=${this.location || 'N/A'}, products=${this.products?.length || 0}, weight=${this.totalWeight}g, active=${this.isActive})`

@@ -79,7 +79,7 @@ class ShelfService {
       
       return {
         success: true,
-        data: shelfs.map(shelf => shelf.toApiResponse()),
+        data: shelfs.map(shelf => shelf.toBasicApiResponse()),
         count: shelfs.length,
         message: shelfs.length > 0 ? 'Pratileiras encontradas' : 'Nenhuma pratileira encontrada'
       }
@@ -88,6 +88,38 @@ class ShelfService {
       return {
         success: false,
         error: error.message || 'Erro ao buscar pratileiras'
+      }
+    }
+  }
+
+  // Buscar produtos de uma pratileira específica
+  async getShelfProducts(shelfId) {
+    try {
+      const shelf = await this.shelfRepository.findById(shelfId)
+      
+      if (!shelf) {
+        return {
+          success: false,
+          error: 'Pratileira não encontrada'
+        }
+      }
+
+      return {
+        success: true,
+        data: {
+          shelfId: shelf.id,
+          shelfName: shelf.name,
+          products: shelf.products || [],
+          totalItems: shelf.getTotalItems(),
+          totalWeight: shelf.totalWeight
+        },
+        message: 'Produtos da pratileira encontrados'
+      }
+    } catch (error) {
+      console.error('Erro no ShelfService.getShelfProducts:', error)
+      return {
+        success: false,
+        error: error.message || 'Erro ao buscar produtos da pratileira'
       }
     }
   }

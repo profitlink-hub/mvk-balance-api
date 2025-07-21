@@ -57,6 +57,38 @@ class ShelfController {
     }
   }
 
+  // GET /shelf/:id/products - Buscar produtos de uma pratileira
+  async getShelfProducts(req, res) {
+    try {
+      const { id } = req.params
+
+      // Validar ID
+      const validation = ShelfValidator.validateId(id)
+      if (!validation.valid) {
+        return res.status(400).json({
+          success: false,
+          error: 'Dados inválidos',
+          details: validation.errors
+        })
+      }
+
+      const result = await this.shelfService.getShelfProducts(id)
+      
+      if (result.success) {
+        res.status(200).json(result)
+      } else {
+        const statusCode = result.error === 'Pratileira não encontrada' ? 404 : 500
+        res.status(statusCode).json(result)
+      }
+    } catch (error) {
+      console.error('Erro em getShelfProducts:', error)
+      res.status(500).json({
+        success: false,
+        error: 'Erro interno do servidor'
+      })
+    }
+  }
+
   // GET /shelfs/search/:name - Buscar pratileira por nome
   async getShelfByName(req, res) {
     try {

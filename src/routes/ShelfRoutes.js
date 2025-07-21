@@ -14,8 +14,8 @@ const shelfController = new ShelfController()
  * /shelfs:
  *   get:
  *     tags: [Shelfs]
- *     summary: Listar todas as pratileiras
- *     description: Retorna lista de todas as pratileiras cadastradas
+ *     summary: Listar todas as pratileiras (sem produtos)
+ *     description: Retorna lista básica de todas as pratileiras cadastradas sem incluir os produtos
  *     security:
  *       - ClientAuth: []
  *         ClientSecret: []
@@ -32,7 +32,39 @@ const shelfController = new ShelfController()
  *                     data:
  *                       type: array
  *                       items:
- *                         $ref: '#/components/schemas/Shelf'
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           name:
+ *                             type: string
+ *                           description:
+ *                             type: string
+ *                           totalWeight:
+ *                             type: number
+ *                           maxCapacity:
+ *                             type: number
+ *                           location:
+ *                             type: string
+ *                           isActive:
+ *                             type: boolean
+ *                           statistics:
+ *                             type: object
+ *                             properties:
+ *                               totalItems:
+ *                                 type: integer
+ *                               uniqueProducts:
+ *                                 type: integer
+ *                               isEmpty:
+ *                                 type: boolean
+ *                               averageWeightPerProduct:
+ *                                 type: number
+ *                           createdAt:
+ *                             type: string
+ *                             format: date-time
+ *                           updatedAt:
+ *                             type: string
+ *                             format: date-time
  *                     count:
  *                       type: integer
  *                       description: Total de pratileiras
@@ -85,6 +117,72 @@ router.get('/', (req, res) => {
  */
 router.get('/:id', (req, res) => {
   shelfController.getShelfById(req, res)
+})
+
+/**
+ * @swagger
+ * /shelf/{id}/products:
+ *   get:
+ *     tags: [Shelfs]
+ *     summary: Buscar produtos de uma pratileira
+ *     description: Retorna todos os produtos de uma pratileira específica
+ *     security:
+ *       - ClientAuth: []
+ *         ClientSecret: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID da pratileira
+ *     responses:
+ *       200:
+ *         description: Produtos da pratileira encontrados
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: object
+ *                       properties:
+ *                         shelfId:
+ *                           type: string
+ *                           description: ID da pratileira
+ *                         shelfName:
+ *                           type: string
+ *                           description: Nome da pratileira
+ *                         products:
+ *                           type: array
+ *                           items:
+ *                             type: object
+ *                             properties:
+ *                               productId:
+ *                                 type: string
+ *                               product:
+ *                                 $ref: '#/components/schemas/Product'
+ *                               quantity:
+ *                                 type: integer
+ *                               totalWeight:
+ *                                 type: number
+ *                         totalItems:
+ *                           type: integer
+ *                           description: Total de itens na pratileira
+ *                         totalWeight:
+ *                           type: number
+ *                           description: Peso total da pratileira
+ *       404:
+ *         description: Pratileira não encontrada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router.get('/:id/products', (req, res) => {
+  shelfController.getShelfProducts(req, res)
 })
 
 /**
