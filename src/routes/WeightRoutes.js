@@ -1,6 +1,5 @@
 const express = require('express')
 const WeightController = require('../controllers/WeightController')
-const AuthMiddleware = require('../middlewares/AuthMiddleware')
 
 const router = express.Router()
 const weightController = new WeightController()

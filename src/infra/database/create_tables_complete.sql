@@ -310,26 +310,6 @@ GROUP BY p.id, p.name, p.weight
 ORDER BY used_in_shelfs DESC, total_quantity DESC;
 
 -- ================================
--- DADOS DE EXEMPLO (OPCIONAL)
--- ================================
-
--- Inserir produtos de exemplo
-INSERT INTO products (name, weight, source) VALUES 
-    ('Açúcar Cristal 1kg', 1000.00, 'api'),
-    ('Arroz Branco 1kg', 1000.00, 'api'),
-    ('Feijão Preto 1kg', 1000.00, 'api'),
-    ('Óleo de Soja 900ml', 900.00, 'api'),
-    ('Macarrão Espaguete 500g', 500.00, 'api')
-ON CONFLICT (name) DO NOTHING;
-
--- Inserir pratileiras de exemplo
-INSERT INTO shelfs (name, description, max_capacity, location) VALUES 
-    ('Pratileira Central A', 'Pratileira principal do corredor central', 50000.00, 'Corredor Central'),
-    ('Pratileira Lateral B', 'Pratileira lateral direita', 30000.00, 'Lateral Direita'),
-    ('Pratileira de Teste', 'Pratileira para testes e demonstrações', 10000.00, 'Área de Testes')
-ON CONFLICT (name) DO NOTHING;
-
--- ================================
 -- COMENTÁRIOS PARA DOCUMENTAÇÃO
 -- ================================
 
