@@ -75,7 +75,7 @@ class ShelfRepository {
     return new Shelf(shelfData)
   }
 
-  // Buscar produtos completos da pratileira via shelf_items (para debug/verificação)
+  // Buscar produtos completos da Prateleira via shelf_items (para debug/verificação)
   async _getShelfItemsWithProducts(shelfId) {
     if (this._shouldUseMemory()) {
       return []
@@ -141,7 +141,7 @@ class ShelfRepository {
     return dbData
   }
 
-  // Criar pratileira
+  // Criar Prateleira
   async create(shelfData) {
     const id = uuidv4()
     const now = new Date()
@@ -159,10 +159,10 @@ class ShelfRepository {
       isActive: shelfData.isActive !== undefined ? shelfData.isActive : true
     })
 
-    // Verificar se já existe uma pratileira com o mesmo nome
+    // Verificar se já existe uma Prateleira com o mesmo nome
     const existingShelf = await this.findByName(shelf.name)
     if (existingShelf) {
-      throw new Error('Pratileira com este nome já existe')
+      throw new Error('Prateleira com este nome já existe')
     }
 
     if (this._shouldUseMemory()) {
@@ -174,7 +174,7 @@ class ShelfRepository {
     }
 
     try {
-      // 1. Criar pratileira primeiro (sem produtos no JSON, serão sincronizados pelos triggers)
+      // 1. Criar Prateleira primeiro (sem produtos no JSON, serão sincronizados pelos triggers)
       const result = await databaseConfig.query(
         `INSERT INTO ${this.tableName} (id, name, description, products, total_weight, max_capacity, location, is_active, created_at, updated_at)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
@@ -209,7 +209,7 @@ class ShelfRepository {
           )
         }
 
-        // 3. Buscar pratileira atualizada com dados sincronizados pelos triggers
+        // 3. Buscar Prateleira atualizada com dados sincronizados pelos triggers
         const updatedResult = await databaseConfig.query(
           `SELECT * FROM ${this.tableName} WHERE id = $1`,
           [shelf.id]
@@ -221,14 +221,14 @@ class ShelfRepository {
       return this._mapToModel(result.rows[0])
     } catch (error) {
       if (error.code === '23505') { // Unique violation
-        throw new Error('Pratileira com este nome já existe')
+        throw new Error('Prateleira com este nome já existe')
       }
-      console.error('Erro ao criar pratileira no banco:', error)
+      console.error('Erro ao criar Prateleira no banco:', error)
       throw error
     }
   }
 
-  // Buscar pratileira por ID
+  // Buscar Prateleira por ID
   async findById(id) {
     if (this._shouldUseMemory()) {
       return this.shelfs.get(id) || null
@@ -242,12 +242,12 @@ class ShelfRepository {
 
       return result.rows.length > 0 ? this._mapToModel(result.rows[0]) : null
     } catch (error) {
-      console.error('Erro ao buscar pratileira por ID:', error)
+      console.error('Erro ao buscar Prateleira por ID:', error)
       return null
     }
   }
 
-  // Buscar pratileira por nome
+  // Buscar Prateleira por nome
   async findByName(name) {
     if (this._shouldUseMemory()) {
       for (const shelf of this.shelfs.values()) {
@@ -266,12 +266,12 @@ class ShelfRepository {
 
       return result.rows.length > 0 ? this._mapToModel(result.rows[0]) : null
     } catch (error) {
-      console.error('Erro ao buscar pratileira por nome:', error)
+      console.error('Erro ao buscar Prateleira por nome:', error)
       return null
     }
   }
 
-  // Buscar todas as pratileiras
+  // Buscar todas as Prateleiras
   async findAll(filters = {}) {
     if (this._shouldUseMemory()) {
       let shelfs = Array.from(this.shelfs.values())
@@ -306,12 +306,12 @@ class ShelfRepository {
 
       return result.rows.map(row => this._mapToModel(row))
     } catch (error) {
-      console.error('Erro ao buscar pratileiras:', error)
+      console.error('Erro ao buscar Prateleiras:', error)
       return []
     }
   }
 
-  // Atualizar pratileira
+  // Atualizar Prateleira
   async update(id, updateData) {
     if (this._shouldUseMemory()) {
       const shelf = this.shelfs.get(id)
@@ -349,7 +349,7 @@ class ShelfRepository {
     }
 
     try {
-      // Buscar pratileira atual
+      // Buscar Prateleira atual
       const currentShelf = await this.findById(id)
       if (!currentShelf) {
         return null
@@ -430,7 +430,7 @@ class ShelfRepository {
 
       // Gerenciar produtos via shelf_items se necessário
       if (shouldUpdateProducts) {
-        // 1. Remover todos os produtos existentes da pratileira
+        // 1. Remover todos os produtos existentes da Prateleira
         await databaseConfig.query(
           `DELETE FROM shelf_items WHERE shelf_id = $1`,
           [id]
@@ -453,7 +453,7 @@ class ShelfRepository {
           }
         }
 
-        // 3. Buscar pratileira atualizada com dados sincronizados pelos triggers
+        // 3. Buscar Prateleira atualizada com dados sincronizados pelos triggers
         const finalResult = await databaseConfig.query(
           `SELECT * FROM ${this.tableName} WHERE id = $1`,
           [id]
@@ -465,14 +465,14 @@ class ShelfRepository {
       return updatedShelf
     } catch (error) {
       if (error.code === '23505') { // Unique violation
-        throw new Error('Já existe uma pratileira com este nome')
+        throw new Error('Já existe uma Prateleira com este nome')
       }
-      console.error('Erro ao atualizar pratileira:', error)
+      console.error('Erro ao atualizar Prateleira:', error)
       throw error
     }
   }
 
-  // Deletar pratileira
+  // Deletar Prateleira
   async delete(id) {
     if (this._shouldUseMemory()) {
       const existed = this.shelfs.has(id)
@@ -488,12 +488,12 @@ class ShelfRepository {
 
       return result.rowCount > 0
     } catch (error) {
-      console.error('Erro ao deletar pratileira:', error)
+      console.error('Erro ao deletar Prateleira:', error)
       throw error
     }
   }
 
-  // Buscar pratileiras por filtros
+  // Buscar Prateleiras por filtros
   async findByFilters(filters) {
     if (this._shouldUseMemory()) {
       let results = Array.from(this.shelfs.values())
@@ -559,12 +559,12 @@ class ShelfRepository {
       const result = await databaseConfig.query(query, values)
       return result.rows.map(row => this._mapToModel(row))
     } catch (error) {
-      console.error('Erro ao buscar pratileiras com filtros:', error)
+      console.error('Erro ao buscar Prateleiras com filtros:', error)
       return []
     }
   }
 
-  // Adicionar produto à pratileira
+  // Adicionar produto à Prateleira
   async addProduct(shelfId, productData) {
     if (this._shouldUseMemory()) {
       const shelf = this.shelfs.get(shelfId)
@@ -572,7 +572,7 @@ class ShelfRepository {
         return null
       }
 
-      // Verificar se produto já existe na pratileira
+      // Verificar se produto já existe na Prateleira
       const existingIndex = shelf.products.findIndex(p => p.productId === productData.productId)
       
       if (existingIndex >= 0) {
@@ -599,13 +599,13 @@ class ShelfRepository {
     }
 
     try {
-      // Buscar pratileira atual
+      // Buscar Prateleira atual
       const currentShelf = await this.findById(shelfId)
       if (!currentShelf) {
         return null
       }
 
-      // Verificar se produto já existe na pratileira
+      // Verificar se produto já existe na Prateleira
       const existingItem = await databaseConfig.query(
         `SELECT * FROM shelf_items WHERE shelf_id = $1 AND product_id = $2`,
         [shelfId, productData.productId]
@@ -637,7 +637,7 @@ class ShelfRepository {
         )
       }
 
-      // Buscar pratileira atualizada (triggers atualizarão JSON e peso automaticamente)
+      // Buscar Prateleira atualizada (triggers atualizarão JSON e peso automaticamente)
       const updatedResult = await databaseConfig.query(
         `SELECT * FROM ${this.tableName} WHERE id = $1`,
         [shelfId]
@@ -645,12 +645,12 @@ class ShelfRepository {
 
       return this._mapToModel(updatedResult.rows[0])
     } catch (error) {
-      console.error('Erro ao adicionar produto à pratileira:', error)
+      console.error('Erro ao adicionar produto à Prateleira:', error)
       throw error
     }
   }
 
-  // Remover produto da pratileira
+  // Remover produto da Prateleira
   async removeProduct(shelfId, productId) {
     if (this._shouldUseMemory()) {
       const shelf = this.shelfs.get(shelfId)
@@ -669,7 +669,7 @@ class ShelfRepository {
     }
 
     try {
-      // Buscar pratileira atual
+      // Buscar Prateleira atual
       const currentShelf = await this.findById(shelfId)
       if (!currentShelf) {
         return null
@@ -683,10 +683,10 @@ class ShelfRepository {
 
       // Verificar se algum registro foi removido
       if (deleteResult.rowCount === 0) {
-        console.warn(`Produto ${productId} não encontrado na pratileira ${shelfId}`)
+        console.warn(`Produto ${productId} não encontrado na Prateleira ${shelfId}`)
       }
 
-      // Buscar pratileira atualizada (triggers atualizarão JSON e peso automaticamente)
+      // Buscar Prateleira atualizada (triggers atualizarão JSON e peso automaticamente)
       const updatedResult = await databaseConfig.query(
         `SELECT * FROM ${this.tableName} WHERE id = $1`,
         [shelfId]
@@ -694,12 +694,12 @@ class ShelfRepository {
 
       return this._mapToModel(updatedResult.rows[0])
     } catch (error) {
-      console.error('Erro ao remover produto da pratileira:', error)
+      console.error('Erro ao remover produto da Prateleira:', error)
       throw error
     }
   }
 
-  // Estatísticas das pratileiras
+  // Estatísticas das Prateleiras
   async getStatistics() {
     if (this._shouldUseMemory()) {
       const shelfs = Array.from(this.shelfs.values())
@@ -749,10 +749,10 @@ class ShelfRepository {
     }
 
     try {
-      // Buscar dados da pratileira
+      // Buscar dados da Prateleira
       const shelf = await this.findById(shelfId)
       if (!shelf) {
-        return { error: 'Pratileira não encontrada' }
+        return { error: 'Prateleira não encontrada' }
       }
 
       // Buscar dados dos shelf_items

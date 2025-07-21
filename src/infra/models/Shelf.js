@@ -23,7 +23,7 @@ class Shelf {
     this.updatedAt = updatedAt
   }
 
-  // Validar se a pratileira tem dados válidos
+  // Validar se a Prateleira tem dados válidos
   isValid() {
     return this.name && 
            typeof this.name === 'string' && 
@@ -50,7 +50,7 @@ class Shelf {
     this.updatedAt = new Date()
   }
 
-  // Adicionar produto à pratileira
+  // Adicionar produto à Prateleira
   addProduct(productData) {
     if (!this.products) {
       this.products = []
@@ -77,7 +77,7 @@ class Shelf {
     this.updateTotalWeight()
   }
 
-  // Remover produto da pratileira
+  // Remover produto da Prateleira
   removeProduct(productId) {
     if (!this.products) {
       return false
@@ -119,7 +119,7 @@ class Shelf {
     return false
   }
 
-  // Obter produto específico na pratileira
+  // Obter produto específico na Prateleira
   getProduct(productId) {
     if (!this.products) {
       return null
@@ -128,7 +128,7 @@ class Shelf {
     return this.products.find(p => p.productId === productId) || null
   }
 
-  // Contar total de itens na pratileira
+  // Contar total de itens na Prateleira
   getTotalItems() {
     if (!this.products) {
       return 0
@@ -137,7 +137,7 @@ class Shelf {
     return this.products.reduce((total, product) => total + product.quantity, 0)
   }
 
-  // Verificar se a pratileira está vazia
+  // Verificar se a Prateleira está vazia
   isEmpty() {
     return !this.products || this.products.length === 0
   }

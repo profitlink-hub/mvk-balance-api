@@ -6,7 +6,7 @@ class ShelfController {
     this.shelfService = new ShelfService()
   }
 
-  // GET /shelfs - Listar todas as pratileiras
+  // GET /shelfs - Listar todas as Prateleiras
   async getAllShelfs(req, res) {
     try {
       const filters = {}
@@ -35,7 +35,7 @@ class ShelfController {
     }
   }
 
-  // GET /shelfs/:id - Buscar pratileira por ID
+  // GET /shelfs/:id - Buscar Prateleira por ID
   async getShelfById(req, res) {
     try {
       const { id } = req.params
@@ -55,7 +55,7 @@ class ShelfController {
       if (result.success) {
         res.status(200).json(result)
       } else {
-        const statusCode = result.error === 'Pratileira não encontrada' ? 404 : 500
+        const statusCode = result.error === 'Prateleira não encontrada' ? 404 : 500
         res.status(statusCode).json(result)
       }
     } catch (error) {
@@ -67,7 +67,7 @@ class ShelfController {
     }
   }
 
-  // GET /shelf/:id/products - Buscar produtos de uma pratileira
+  // GET /shelf/:id/products - Buscar produtos de uma Prateleira
   async getShelfProducts(req, res) {
     try {
       const { id } = req.params
@@ -87,7 +87,7 @@ class ShelfController {
       if (result.success) {
         res.status(200).json(result)
       } else {
-        const statusCode = result.error === 'Pratileira não encontrada' ? 404 : 500
+        const statusCode = result.error === 'Prateleira não encontrada' ? 404 : 500
         res.status(statusCode).json(result)
       }
     } catch (error) {
@@ -99,7 +99,7 @@ class ShelfController {
     }
   }
 
-  // GET /shelfs/search/:name - Buscar pratileira por nome
+  // GET /shelfs/search/:name - Buscar Prateleira por nome
   async getShelfByName(req, res) {
     try {
       const { name } = req.params
@@ -119,7 +119,7 @@ class ShelfController {
       if (result.success) {
         res.status(200).json(result)
       } else {
-        const statusCode = result.error === 'Pratileira não encontrada' ? 404 : 500
+        const statusCode = result.error === 'Prateleira não encontrada' ? 404 : 500
         res.status(statusCode).json(result)
       }
     } catch (error) {
@@ -131,7 +131,7 @@ class ShelfController {
     }
   }
 
-  // POST /shelfs - Criar nova pratileira
+  // POST /shelfs - Criar nova Prateleira
   async createShelf(req, res) {
     try {
       console.log('📥 Dados recebidos:', JSON.stringify(req.body, null, 2))
@@ -173,7 +173,7 @@ class ShelfController {
     }
   }
 
-  // PUT /shelfs/:id - Atualizar pratileira
+  // PUT /shelfs/:id - Atualizar Prateleira
   async updateShelf(req, res) {
     try {
       const { id } = req.params
@@ -207,7 +207,7 @@ class ShelfController {
         res.status(200).json(result)
       } else {
         let statusCode = 500
-        if (result.error === 'Pratileira não encontrada') {
+        if (result.error === 'Prateleira não encontrada') {
           statusCode = 404
         } else if (result.error.includes('já existe')) {
           statusCode = 409
@@ -225,7 +225,7 @@ class ShelfController {
     }
   }
 
-  // DELETE /shelfs/:id - Deletar pratileira
+  // DELETE /shelfs/:id - Deletar Prateleira
   async deleteShelf(req, res) {
     try {
       const { id } = req.params
@@ -245,7 +245,7 @@ class ShelfController {
       if (result.success) {
         res.status(200).json(result)
       } else {
-        const statusCode = result.error === 'Pratileira não encontrada' ? 404 : 500
+        const statusCode = result.error === 'Prateleira não encontrada' ? 404 : 500
         res.status(statusCode).json(result)
       }
     } catch (error) {
@@ -257,17 +257,17 @@ class ShelfController {
     }
   }
 
-  // POST /shelfs/:id/products - Adicionar produto à pratileira
+  // POST /shelfs/:id/products - Adicionar produto à Prateleira
   async addProduct(req, res) {
     try {
       const { id } = req.params
 
-      // Validar ID da pratileira
+      // Validar ID da Prateleira
       const idValidation = ShelfValidator.validateId(id)
       if (!idValidation.valid) {
         return res.status(400).json({
           success: false,
-          error: 'ID da pratileira inválido',
+          error: 'ID da Prateleira inválido',
           details: idValidation.errors
         })
       }
@@ -288,7 +288,7 @@ class ShelfController {
         res.status(200).json(result)
       } else {
         let statusCode = 500
-        if (result.error === 'Pratileira não encontrada' || result.error === 'Produto não encontrado') {
+        if (result.error === 'Prateleira não encontrada' || result.error === 'Produto não encontrado') {
           statusCode = 404
         } else if (result.error.includes('inválido')) {
           statusCode = 400
@@ -304,7 +304,7 @@ class ShelfController {
     }
   }
 
-  // DELETE /shelfs/:id/products/:productId - Remover produto da pratileira
+  // DELETE /shelfs/:id/products/:productId - Remover produto da Prateleira
   async removeProduct(req, res) {
     try {
       const { id, productId } = req.params
@@ -326,7 +326,7 @@ class ShelfController {
       if (result.success) {
         res.status(200).json(result)
       } else {
-        const statusCode = result.error === 'Pratileira não encontrada' ? 404 : 500
+        const statusCode = result.error === 'Prateleira não encontrada' ? 404 : 500
         res.status(statusCode).json(result)
       }
     } catch (error) {
@@ -338,7 +338,7 @@ class ShelfController {
     }
   }
 
-  // GET /shelfs/search - Buscar pratileiras com filtros
+  // GET /shelfs/search - Buscar Prateleiras com filtros
   async searchShelfs(req, res) {
     try {
       const filters = {}
@@ -370,7 +370,7 @@ class ShelfController {
     }
   }
 
-  // GET /shelfs/statistics - Obter estatísticas das pratileiras
+  // GET /shelfs/statistics - Obter estatísticas das Prateleiras
   async getStatistics(req, res) {
     try {
       const result = await this.shelfService.getStatistics()

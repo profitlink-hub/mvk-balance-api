@@ -1,6 +1,6 @@
-# 📦 Endpoints de Pratileiras - MVK Balance API
+# 📦 Endpoints de Prateleiras - MVK Balance API
 
-Documentação completa dos endpoints criados para gerenciamento de pratileiras.
+Documentação completa dos endpoints criados para gerenciamento de Prateleiras.
 
 ## 🌐 Base URL
 ```
@@ -17,7 +17,7 @@ Content-Type: application/json
 
 ## 📋 Endpoints Implementados
 
-### **1. Listar Todas as Pratileiras**
+### **1. Listar Todas as Prateleiras**
 ```http
 GET /shelfs
 ```
@@ -28,8 +28,8 @@ GET /shelfs
   "success": true,
   "data": [
     {
-      "id": "uuid-pratileira",
-      "name": "Pratileira A",
+      "id": "uuid-Prateleira",
+      "name": "Prateleira A",
       "products": [
         {
           "productId": "uuid-produto",
@@ -54,36 +54,36 @@ GET /shelfs
     }
   ],
   "count": 1,
-  "message": "Pratileiras encontradas"
+  "message": "Prateleiras encontradas"
 }
 ```
 
-### **2. Buscar Pratileira por ID**
+### **2. Buscar Prateleira por ID**
 ```http
 GET /shelfs/{id}
 ```
 
 **Parâmetros:**
-- `id` (path): ID da pratileira
+- `id` (path): ID da Prateleira
 
 **Resposta de Sucesso (200):**
 ```json
 {
   "success": true,
   "data": {
-    "id": "uuid-pratileira",
-    "name": "Pratileira A",
+    "id": "uuid-Prateleira",
+    "name": "Prateleira A",
     "products": [...],
     "totalWeight": 125,
     "statistics": {...},
     "createdAt": "2025-01-17T00:00:00.000Z",
     "updatedAt": "2025-01-17T00:00:00.000Z"
   },
-  "message": "Pratileira encontrada"
+  "message": "Prateleira encontrada"
 }
 ```
 
-### **3. Criar Nova Pratileira**
+### **3. Criar Nova Prateleira**
 ```http
 POST /shelfs
 ```
@@ -91,7 +91,7 @@ POST /shelfs
 **Body:**
 ```json
 {
-  "name": "Pratileira Nova",
+  "name": "Prateleira Nova",
   "products": [
     {
       "productId": "uuid-produto",
@@ -107,16 +107,16 @@ POST /shelfs
   "success": true,
   "data": {
     "id": "uuid-gerado",
-    "name": "Pratileira Nova",
+    "name": "Prateleira Nova",
     "products": [...],
     "totalWeight": 75,
     "statistics": {...}
   },
-  "message": "Pratileira criada com sucesso"
+  "message": "Prateleira criada com sucesso"
 }
 ```
 
-### **4. Atualizar Pratileira**
+### **4. Atualizar Prateleira**
 ```http
 PUT /shelfs/{id}
 ```
@@ -124,7 +124,7 @@ PUT /shelfs/{id}
 **Body:**
 ```json
 {
-  "name": "Pratileira Atualizada",
+  "name": "Prateleira Atualizada",
   "products": [
     {
       "productId": "uuid-produto",
@@ -139,16 +139,16 @@ PUT /shelfs/{id}
 {
   "success": true,
   "data": {
-    "id": "uuid-pratileira",
-    "name": "Pratileira Atualizada",
+    "id": "uuid-Prateleira",
+    "name": "Prateleira Atualizada",
     "products": [...],
     "totalWeight": 250
   },
-  "message": "Pratileira atualizada com sucesso"
+  "message": "Prateleira atualizada com sucesso"
 }
 ```
 
-### **5. Deletar Pratileira**
+### **5. Deletar Prateleira**
 ```http
 DELETE /shelfs/{id}
 ```
@@ -157,21 +157,21 @@ DELETE /shelfs/{id}
 ```json
 {
   "success": true,
-  "message": "Pratileira deletada com sucesso"
+  "message": "Prateleira deletada com sucesso"
 }
 ```
 
-### **6. Buscar Pratileira por Nome**
+### **6. Buscar Prateleira por Nome**
 ```http
 GET /shelfs/search/{name}
 ```
 
 **Parâmetros:**
-- `name` (path): Nome da pratileira
+- `name` (path): Nome da Prateleira
 
 ### **7. Buscar com Filtros**
 ```http
-GET /shelfs/search?name=Pratileira&minWeight=100&maxWeight=500
+GET /shelfs/search?name=Prateleira&minWeight=100&maxWeight=500
 ```
 
 **Query Parameters:**
@@ -179,7 +179,7 @@ GET /shelfs/search?name=Pratileira&minWeight=100&maxWeight=500
 - `minWeight` (opcional): Peso mínimo em gramas
 - `maxWeight` (opcional): Peso máximo em gramas
 
-### **8. Adicionar Produto à Pratileira**
+### **8. Adicionar Produto à Prateleira**
 ```http
 POST /shelfs/{id}/products
 ```
@@ -197,20 +197,20 @@ POST /shelfs/{id}/products
 {
   "success": true,
   "data": {
-    "id": "uuid-pratileira",
+    "id": "uuid-Prateleira",
     "products": [...],
     "totalWeight": 175
   },
-  "message": "Produto adicionado à pratileira com sucesso"
+  "message": "Produto adicionado à Prateleira com sucesso"
 }
 ```
 
-### **9. Remover Produto da Pratileira**
+### **9. Remover Produto da Prateleira**
 ```http
 DELETE /shelfs/{id}/products/{productId}
 ```
 
-### **10. Estatísticas das Pratileiras**
+### **10. Estatísticas das Prateleiras**
 ```http
 GET /shelfs/statistics
 ```
@@ -241,7 +241,7 @@ GET /shelfs/statistics
 - ✅ Produtos existentes no sistema
 - ✅ Quantidades positivas
 - ✅ IDs válidos
-- ✅ Nomes únicos para pratileiras
+- ✅ Nomes únicos para Prateleiras
 
 ### **Integração com Produtos**
 - ✅ Busca automática de dados do produto
@@ -250,13 +250,13 @@ GET /shelfs/statistics
 
 ## 📊 Exemplo de Fluxo Completo
 
-### **1. Criar Pratileira Vazia**
+### **1. Criar Prateleira Vazia**
 ```bash
 curl -X POST http://localhost:3000/shelfs \
   -H "x-client-id: web_client_001" \
   -H "x-client-secret: secret_web_2023" \
   -H "Content-Type: application/json" \
-  -d '{"name":"Pratileira Teste"}'
+  -d '{"name":"Prateleira Teste"}'
 ```
 
 ### **2. Adicionar Produto**
@@ -278,8 +278,8 @@ curl -X GET http://localhost:3000/shelfs/{shelf-id} \
 ## 🚨 Códigos de Erro Comuns
 
 - **400**: Dados inválidos (validação falhou)
-- **404**: Pratileira ou produto não encontrado
-- **409**: Pratileira com nome já existente
+- **404**: Prateleira ou produto não encontrado
+- **409**: Prateleira com nome já existente
 - **401**: Não autenticado (credenciais inválidas)
 - **500**: Erro interno do servidor
 
@@ -295,7 +295,7 @@ Os endpoints são totalmente compatíveis com o frontend híbrido criado. O sist
 ## 📋 Próximos Passos
 
 ### **Implementado ✅**
-- CRUD completo de pratileiras
+- CRUD completo de Prateleiras
 - Integração com produtos existentes
 - Cálculo automático de peso
 - Validações completas

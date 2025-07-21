@@ -5,7 +5,7 @@ const ShelfController = require('../controllers/ShelfController')
 const router = express.Router()
 const shelfController = new ShelfController()
 
-// Aplicar autenticação em todas as rotas de pratileiras
+// Aplicar autenticação em todas as rotas de Prateleiras
 // router.use(AuthMiddleware.authenticate())
 // router.use(AuthMiddleware.requireActiveClient())
 
@@ -14,8 +14,8 @@ const shelfController = new ShelfController()
  * /shelfs:
  *   get:
  *     tags: [Shelfs]
- *     summary: Listar todas as pratileiras (sem produtos)
- *     description: Retorna lista básica de todas as pratileiras cadastradas sem incluir os produtos
+ *     summary: Listar todas as Prateleiras (sem produtos)
+ *     description: Retorna lista básica de todas as Prateleiras cadastradas sem incluir os produtos
  *     security:
  *       - ClientAuth: []
  *         ClientSecret: []
@@ -25,11 +25,11 @@ const shelfController = new ShelfController()
  *         schema:
  *           type: string
  *           enum: [all, active, inactive]
- *         description: Filtrar pratileiras por status (padrão é 'all')
+ *         description: Filtrar Prateleiras por status (padrão é 'all')
  *         example: all
  *     responses:
  *       200:
- *         description: Lista de pratileiras obtida com sucesso
+ *         description: Lista de Prateleiras obtida com sucesso
  *         content:
  *           application/json:
  *             schema:
@@ -75,7 +75,7 @@ const shelfController = new ShelfController()
  *                             format: date-time
  *                     count:
  *                       type: integer
- *                       description: Total de pratileiras
+ *                       description: Total de Prateleiras
  *       401:
  *         description: Não autenticado
  *         content:
@@ -92,8 +92,8 @@ router.get('/', (req, res) => {
  * /shelfs/{id}:
  *   get:
  *     tags: [Shelfs]
- *     summary: Buscar pratileira por ID
- *     description: Retorna uma pratileira específica pelo ID
+ *     summary: Buscar Prateleira por ID
+ *     description: Retorna uma Prateleira específica pelo ID
  *     security:
  *       - ClientAuth: []
  *         ClientSecret: []
@@ -103,10 +103,10 @@ router.get('/', (req, res) => {
  *         required: true
  *         schema:
  *           type: string
- *         description: ID da pratileira
+ *         description: ID da Prateleira
  *     responses:
  *       200:
- *         description: Pratileira encontrada
+ *         description: Prateleira encontrada
  *         content:
  *           application/json:
  *             schema:
@@ -117,7 +117,7 @@ router.get('/', (req, res) => {
  *                     data:
  *                       $ref: '#/components/schemas/Shelf'
  *       404:
- *         description: Pratileira não encontrada
+ *         description: Prateleira não encontrada
  *         content:
  *           application/json:
  *             schema:
@@ -132,8 +132,8 @@ router.get('/:id', (req, res) => {
  * /shelf/{id}/products:
  *   get:
  *     tags: [Shelfs]
- *     summary: Buscar produtos de uma pratileira
- *     description: Retorna todos os produtos de uma pratileira específica
+ *     summary: Buscar produtos de uma Prateleira
+ *     description: Retorna todos os produtos de uma Prateleira específica
  *     security:
  *       - ClientAuth: []
  *         ClientSecret: []
@@ -143,10 +143,10 @@ router.get('/:id', (req, res) => {
  *         required: true
  *         schema:
  *           type: string
- *         description: ID da pratileira
+ *         description: ID da Prateleira
  *     responses:
  *       200:
- *         description: Produtos da pratileira encontrados
+ *         description: Produtos da Prateleira encontrados
  *         content:
  *           application/json:
  *             schema:
@@ -159,10 +159,10 @@ router.get('/:id', (req, res) => {
  *                       properties:
  *                         shelfId:
  *                           type: string
- *                           description: ID da pratileira
+ *                           description: ID da Prateleira
  *                         shelfName:
  *                           type: string
- *                           description: Nome da pratileira
+ *                           description: Nome da Prateleira
  *                         products:
  *                           type: array
  *                           items:
@@ -178,12 +178,12 @@ router.get('/:id', (req, res) => {
  *                                 type: number
  *                         totalItems:
  *                           type: integer
- *                           description: Total de itens na pratileira
+ *                           description: Total de itens na Prateleira
  *                         totalWeight:
  *                           type: number
- *                           description: Peso total da pratileira
+ *                           description: Peso total da Prateleira
  *       404:
- *         description: Pratileira não encontrada
+ *         description: Prateleira não encontrada
  *         content:
  *           application/json:
  *             schema:
@@ -198,8 +198,8 @@ router.get('/:id/products', (req, res) => {
  * /shelfs:
  *   post:
  *     tags: [Shelfs]
- *     summary: Criar nova pratileira
- *     description: Cria uma nova pratileira no sistema
+ *     summary: Criar nova Prateleira
+ *     description: Cria uma nova Prateleira no sistema
  *     security:
  *       - ClientAuth: []
  *         ClientSecret: []
@@ -214,8 +214,8 @@ router.get('/:id/products', (req, res) => {
  *             properties:
  *               name:
  *                 type: string
- *                 description: Nome da pratileira
- *                 example: "Pratileira A"
+ *                 description: Nome da Prateleira
+ *                 example: "Prateleira A"
  *               products:
  *                 type: array
  *                 description: Lista de produtos (opcional)
@@ -230,7 +230,7 @@ router.get('/:id/products', (req, res) => {
  *                       description: Quantidade do produto
  *     responses:
  *       201:
- *         description: Pratileira criada com sucesso
+ *         description: Prateleira criada com sucesso
  *         content:
  *           application/json:
  *             schema:
@@ -243,7 +243,7 @@ router.get('/:id/products', (req, res) => {
  *       400:
  *         description: Dados inválidos
  *       409:
- *         description: Pratileira já existe
+ *         description: Prateleira já existe
  */
 router.post('/', (req, res) => {
   shelfController.createShelf(req, res)
@@ -254,8 +254,8 @@ router.post('/', (req, res) => {
  * /shelfs/{id}:
  *   put:
  *     tags: [Shelfs]
- *     summary: Atualizar pratileira
- *     description: Atualiza dados de uma pratileira existente
+ *     summary: Atualizar Prateleira
+ *     description: Atualiza dados de uma Prateleira existente
  *     security:
  *       - ClientAuth: []
  *         ClientSecret: []
@@ -265,7 +265,7 @@ router.post('/', (req, res) => {
  *         required: true
  *         schema:
  *           type: string
- *         description: ID da pratileira
+ *         description: ID da Prateleira
  *     requestBody:
  *       required: true
  *       content:
@@ -275,7 +275,7 @@ router.post('/', (req, res) => {
  *             properties:
  *               name:
  *                 type: string
- *                 description: Nome da pratileira
+ *                 description: Nome da Prateleira
  *               products:
  *                 type: array
  *                 description: Lista de produtos
@@ -288,9 +288,9 @@ router.post('/', (req, res) => {
  *                       type: integer
  *     responses:
  *       200:
- *         description: Pratileira atualizada com sucesso
+ *         description: Prateleira atualizada com sucesso
  *       404:
- *         description: Pratileira não encontrada
+ *         description: Prateleira não encontrada
  *       409:
  *         description: Nome já em uso
  */
@@ -303,8 +303,8 @@ router.put('/:id', (req, res) => {
  * /shelfs/{id}:
  *   delete:
  *     tags: [Shelfs]
- *     summary: Deletar pratileira
- *     description: Remove uma pratileira do sistema
+ *     summary: Deletar Prateleira
+ *     description: Remove uma Prateleira do sistema
  *     security:
  *       - ClientAuth: []
  *         ClientSecret: []
@@ -314,12 +314,12 @@ router.put('/:id', (req, res) => {
  *         required: true
  *         schema:
  *           type: string
- *         description: ID da pratileira
+ *         description: ID da Prateleira
  *     responses:
  *       200:
- *         description: Pratileira deletada com sucesso
+ *         description: Prateleira deletada com sucesso
  *       404:
- *         description: Pratileira não encontrada
+ *         description: Prateleira não encontrada
  */
 router.delete('/:id', (req, res) => {
   shelfController.deleteShelf(req, res)
@@ -330,8 +330,8 @@ router.delete('/:id', (req, res) => {
  * /shelfs/search/{name}:
  *   get:
  *     tags: [Shelfs]
- *     summary: Buscar pratileira por nome
- *     description: Busca uma pratileira específica pelo nome
+ *     summary: Buscar Prateleira por nome
+ *     description: Busca uma Prateleira específica pelo nome
  *     security:
  *       - ClientAuth: []
  *         ClientSecret: []
@@ -341,12 +341,12 @@ router.delete('/:id', (req, res) => {
  *         required: true
  *         schema:
  *           type: string
- *         description: Nome da pratileira
+ *         description: Nome da Prateleira
  *     responses:
  *       200:
- *         description: Pratileira encontrada
+ *         description: Prateleira encontrada
  *       404:
- *         description: Pratileira não encontrada
+ *         description: Prateleira não encontrada
  */
 router.get('/search/:name', (req, res) => {
   shelfController.getShelfByName(req, res)
@@ -357,8 +357,8 @@ router.get('/search/:name', (req, res) => {
  * /shelfs/search:
  *   get:
  *     tags: [Shelfs]
- *     summary: Buscar pratileiras com filtros
- *     description: Busca pratileiras aplicando filtros opcionais
+ *     summary: Buscar Prateleiras com filtros
+ *     description: Busca Prateleiras aplicando filtros opcionais
  *     security:
  *       - ClientAuth: []
  *         ClientSecret: []
@@ -380,7 +380,7 @@ router.get('/search/:name', (req, res) => {
  *         description: Peso máximo
  *     responses:
  *       200:
- *         description: Pratileiras encontradas
+ *         description: Prateleiras encontradas
  *         content:
  *           application/json:
  *             schema:
@@ -406,8 +406,8 @@ router.get('/search', (req, res) => {
  * /shelfs/{id}/products:
  *   post:
  *     tags: [Shelfs]
- *     summary: Adicionar produto à pratileira
- *     description: Adiciona um produto a uma pratileira específica
+ *     summary: Adicionar produto à Prateleira
+ *     description: Adiciona um produto a uma Prateleira específica
  *     security:
  *       - ClientAuth: []
  *         ClientSecret: []
@@ -417,7 +417,7 @@ router.get('/search', (req, res) => {
  *         required: true
  *         schema:
  *           type: string
- *         description: ID da pratileira
+ *         description: ID da Prateleira
  *     requestBody:
  *       required: true
  *       content:
@@ -439,7 +439,7 @@ router.get('/search', (req, res) => {
  *       200:
  *         description: Produto adicionado com sucesso
  *       404:
- *         description: Pratileira ou produto não encontrado
+ *         description: Prateleira ou produto não encontrado
  */
 router.post('/:id/products', (req, res) => {
   shelfController.addProduct(req, res)
@@ -450,8 +450,8 @@ router.post('/:id/products', (req, res) => {
  * /shelfs/{id}/products/{productId}:
  *   delete:
  *     tags: [Shelfs]
- *     summary: Remover produto da pratileira
- *     description: Remove um produto de uma pratileira específica
+ *     summary: Remover produto da Prateleira
+ *     description: Remove um produto de uma Prateleira específica
  *     security:
  *       - ClientAuth: []
  *         ClientSecret: []
@@ -461,7 +461,7 @@ router.post('/:id/products', (req, res) => {
  *         required: true
  *         schema:
  *           type: string
- *         description: ID da pratileira
+ *         description: ID da Prateleira
  *       - in: path
  *         name: productId
  *         required: true
@@ -472,7 +472,7 @@ router.post('/:id/products', (req, res) => {
  *       200:
  *         description: Produto removido com sucesso
  *       404:
- *         description: Pratileira não encontrada
+ *         description: Prateleira não encontrada
  */
 router.delete('/:id/products/:productId', (req, res) => {
   shelfController.removeProduct(req, res)
@@ -483,8 +483,8 @@ router.delete('/:id/products/:productId', (req, res) => {
  * /shelfs/statistics:
  *   get:
  *     tags: [Shelfs]
- *     summary: Obter estatísticas das pratileiras
- *     description: Retorna estatísticas gerais das pratileiras
+ *     summary: Obter estatísticas das Prateleiras
+ *     description: Retorna estatísticas gerais das Prateleiras
  *     security:
  *       - ClientAuth: []
  *         ClientSecret: []
@@ -503,16 +503,16 @@ router.delete('/:id/products/:productId', (req, res) => {
  *                       properties:
  *                         totalShelfs:
  *                           type: integer
- *                           description: Total de pratileiras
+ *                           description: Total de Prateleiras
  *                         totalWeight:
  *                           type: number
- *                           description: Peso total de todas as pratileiras
+ *                           description: Peso total de todas as Prateleiras
  *                         averageWeight:
  *                           type: number
- *                           description: Peso médio por pratileira
+ *                           description: Peso médio por Prateleira
  *                         totalProducts:
  *                           type: integer
- *                           description: Total de produtos em todas as pratileiras
+ *                           description: Total de produtos em todas as Prateleiras
  */
 router.get('/statistics', (req, res) => {
   shelfController.getStatistics(req, res)

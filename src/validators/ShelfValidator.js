@@ -1,17 +1,17 @@
 class ShelfValidator {
-  // Validar dados para criação de pratileira
+  // Validar dados para criação de Prateleira
   static validateCreate(data) {
     const errors = []
 
     // Validar nome
     if (!data.name) {
-      errors.push('Nome da pratileira é obrigatório')
+      errors.push('Nome da Prateleira é obrigatório')
     } else if (typeof data.name !== 'string') {
-      errors.push('Nome da pratileira deve ser uma string')
+      errors.push('Nome da Prateleira deve ser uma string')
     } else if (data.name.trim().length < 2) {
-      errors.push('Nome da pratileira deve ter pelo menos 2 caracteres')
+      errors.push('Nome da Prateleira deve ter pelo menos 2 caracteres')
     } else if (data.name.trim().length > 100) {
-      errors.push('Nome da pratileira deve ter no máximo 100 caracteres')
+      errors.push('Nome da Prateleira deve ter no máximo 100 caracteres')
     }
 
     // Validar produtos (opcional na criação)
@@ -40,20 +40,20 @@ class ShelfValidator {
     }
   }
 
-  // Validar dados para atualização de pratileira
+  // Validar dados para atualização de Prateleira
   static validateUpdate(data) {
     const errors = []
 
     // Nome é opcional na atualização, mas deve ser válido se fornecido
     if (data.name !== undefined) {
       if (!data.name) {
-        errors.push('Nome da pratileira não pode ser vazio')
+        errors.push('Nome da Prateleira não pode ser vazio')
       } else if (typeof data.name !== 'string') {
-        errors.push('Nome da pratileira deve ser uma string')
+        errors.push('Nome da Prateleira deve ser uma string')
       } else if (data.name.trim().length < 2) {
-        errors.push('Nome da pratileira deve ter pelo menos 2 caracteres')
+        errors.push('Nome da Prateleira deve ter pelo menos 2 caracteres')
       } else if (data.name.trim().length > 100) {
-        errors.push('Nome da pratileira deve ter no máximo 100 caracteres')
+        errors.push('Nome da Prateleira deve ter no máximo 100 caracteres')
       }
     }
 
@@ -97,16 +97,16 @@ class ShelfValidator {
     }
   }
 
-  // Validar ID de pratileira
+  // Validar ID de Prateleira
   static validateId(id) {
     const errors = []
 
     if (!id) {
-      errors.push('ID da pratileira é obrigatório')
+      errors.push('ID da Prateleira é obrigatório')
     } else if (typeof id !== 'string') {
-      errors.push('ID da pratileira deve ser uma string')
+      errors.push('ID da Prateleira deve ser uma string')
     } else if (id.trim().length === 0) {
-      errors.push('ID da pratileira não pode ser vazio')
+      errors.push('ID da Prateleira não pode ser vazio')
     }
 
     return {
@@ -115,7 +115,7 @@ class ShelfValidator {
     }
   }
 
-  // Validar dados para adição de produto à pratileira
+  // Validar dados para adição de produto à Prateleira
   static validateAddProduct(data) {
     const errors = []
 
@@ -194,7 +194,7 @@ class ShelfValidator {
     return sanitized
   }
 
-  // Calcular peso total da pratileira
+  // Calcular peso total da Prateleira
   static calculateTotalWeight(products) {
     if (!Array.isArray(products) || products.length === 0) {
       return 0
@@ -210,11 +210,11 @@ class ShelfValidator {
     const errors = []
 
     if (!name) {
-      errors.push('Nome da pratileira para busca é obrigatório')
+      errors.push('Nome da Prateleira para busca é obrigatório')
     } else if (typeof name !== 'string') {
-      errors.push('Nome da pratileira deve ser uma string')
+      errors.push('Nome da Prateleira deve ser uma string')
     } else if (name.trim().length === 0) {
-      errors.push('Nome da pratileira não pode ser vazio')
+      errors.push('Nome da Prateleira não pode ser vazio')
     }
 
     return {

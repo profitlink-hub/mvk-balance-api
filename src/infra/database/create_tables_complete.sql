@@ -1,6 +1,6 @@
 -- ================================
 -- MVK BALANCE - SCRIPT COMPLETO DE CRIAÇÃO DE TABELAS
--- Inclui: Clientes, Produtos, Leituras de Peso e PRATILEIRAS
+-- Inclui: Clientes, Produtos, Leituras de Peso e PrateleiraS
 -- ================================
 
 -- ================================
@@ -57,7 +57,7 @@ CREATE INDEX IF NOT EXISTS idx_products_weight ON products(weight);
 CREATE INDEX IF NOT EXISTS idx_products_source ON products(source);
 
 -- ================================
--- TABELA DE PRATILEIRAS (NOVA)
+-- TABELA DE PrateleiraS (NOVA)
 -- ================================
 
 CREATE TABLE IF NOT EXISTS shelfs (
@@ -83,7 +83,7 @@ CREATE INDEX IF NOT EXISTS idx_shelfs_total_weight ON shelfs(total_weight);
 CREATE INDEX IF NOT EXISTS idx_shelfs_products_gin ON shelfs USING GIN (products);
 
 -- ================================
--- TABELA DE ITENS DA PRATILEIRA (RELACIONAMENTO)
+-- TABELA DE ITENS DA Prateleira (RELACIONAMENTO)
 -- ================================
 
 CREATE TABLE IF NOT EXISTS shelf_items (
@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS shelf_items (
     added_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     
-    -- Garantir que um produto não seja duplicado na mesma pratileira
+    -- Garantir que um produto não seja duplicado na mesma Prateleira
     UNIQUE(shelf_id, product_id)
 );
 
@@ -141,11 +141,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Função para recalcular peso total da pratileira
+-- Função para recalcular peso total da Prateleira
 CREATE OR REPLACE FUNCTION update_shelf_total_weight()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- Atualizar peso total da pratileira quando itens são modificados
+    -- Atualizar peso total da Prateleira quando itens são modificados
     UPDATE shelfs 
     SET total_weight = (
         SELECT COALESCE(SUM(total_item_weight), 0)
@@ -159,11 +159,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Função para sincronizar produtos JSON na pratileira
+-- Função para sincronizar produtos JSON na Prateleira
 CREATE OR REPLACE FUNCTION sync_shelf_products_json()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- Atualizar campo JSON com produtos da pratileira
+    -- Atualizar campo JSON com produtos da Prateleira
     UPDATE shelfs 
     SET products = (
         SELECT COALESCE(
@@ -212,7 +212,7 @@ BEGIN
     END IF;
 END $$;
 
--- Triggers para sincronização automática de pratileiras
+-- Triggers para sincronização automática de Prateleiras
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'sync_shelf_weight_on_insert') THEN
@@ -273,7 +273,7 @@ FROM weight_readings wr
 LEFT JOIN shelfs s ON s.id = wr.shelf_id
 ORDER BY timestamp DESC;
 
--- View de pratileiras com detalhes
+-- View de Prateleiras com detalhes
 CREATE OR REPLACE VIEW v_shelfs_detailed AS
 SELECT 
     s.id,
@@ -295,7 +295,7 @@ FROM shelfs s
 LEFT JOIN shelf_items si ON si.shelf_id = s.id
 GROUP BY s.id, s.name, s.description, s.total_weight, s.max_capacity, s.location, s.is_active, s.created_at, s.updated_at;
 
--- View de produtos mais utilizados em pratileiras
+-- View de produtos mais utilizados em Prateleiras
 CREATE OR REPLACE VIEW v_popular_products AS
 SELECT 
     p.id,
@@ -327,26 +327,26 @@ COMMENT ON COLUMN products.arduino_timestamp IS 'Timestamp original do Arduino';
 COMMENT ON COLUMN products.registered_at IS 'Data/hora de registro pelo Arduino';
 COMMENT ON COLUMN products.source IS 'Fonte dos dados: api ou arduino';
 
-COMMENT ON TABLE shelfs IS 'Tabela de pratileiras do sistema';
-COMMENT ON COLUMN shelfs.name IS 'Nome único da pratileira';
-COMMENT ON COLUMN shelfs.description IS 'Descrição detalhada da pratileira';
-COMMENT ON COLUMN shelfs.products IS 'JSON com produtos e quantidades da pratileira';
+COMMENT ON TABLE shelfs IS 'Tabela de Prateleiras do sistema';
+COMMENT ON COLUMN shelfs.name IS 'Nome único da Prateleira';
+COMMENT ON COLUMN shelfs.description IS 'Descrição detalhada da Prateleira';
+COMMENT ON COLUMN shelfs.products IS 'JSON com produtos e quantidades da Prateleira';
 COMMENT ON COLUMN shelfs.total_weight IS 'Peso total calculado automaticamente';
-COMMENT ON COLUMN shelfs.max_capacity IS 'Capacidade máxima da pratileira em gramas';
-COMMENT ON COLUMN shelfs.location IS 'Localização física da pratileira';
+COMMENT ON COLUMN shelfs.max_capacity IS 'Capacidade máxima da Prateleira em gramas';
+COMMENT ON COLUMN shelfs.location IS 'Localização física da Prateleira';
 
-COMMENT ON TABLE shelf_items IS 'Relacionamento entre pratileiras e produtos';
-COMMENT ON COLUMN shelf_items.quantity IS 'Quantidade do produto na pratileira';
+COMMENT ON TABLE shelf_items IS 'Relacionamento entre Prateleiras e produtos';
+COMMENT ON COLUMN shelf_items.quantity IS 'Quantidade do produto na Prateleira';
 COMMENT ON COLUMN shelf_items.unit_weight IS 'Peso unitário do produto (cópia)';
 COMMENT ON COLUMN shelf_items.total_item_weight IS 'Peso total calculado (quantidade × peso)';
-COMMENT ON COLUMN shelf_items.position IS 'Posição do produto na pratileira';
+COMMENT ON COLUMN shelf_items.position IS 'Posição do produto na Prateleira';
 
 COMMENT ON TABLE weight_readings IS 'Tabela de leituras de peso enviadas pelo Arduino';
 COMMENT ON COLUMN weight_readings.product_name IS 'Nome do produto pesado';
 COMMENT ON COLUMN weight_readings.weight IS 'Peso lido em gramas';
 COMMENT ON COLUMN weight_readings.action IS 'Ação realizada: RETIRADO ou COLOCADO';
 COMMENT ON COLUMN weight_readings.arduino_id IS 'ID do Arduino que registrou a leitura';
-COMMENT ON COLUMN weight_readings.shelf_id IS 'Pratileira onde ocorreu a leitura';
+COMMENT ON COLUMN weight_readings.shelf_id IS 'Prateleira onde ocorreu a leitura';
 COMMENT ON COLUMN weight_readings.timestamp IS 'Timestamp da leitura (do Arduino)';
 COMMENT ON COLUMN weight_readings.day_of_week IS 'Dia da semana da leitura em português';
 
@@ -427,5 +427,5 @@ BEGIN
     RAISE NOTICE '📊 Tabelas criadas: clients, products, shelfs, shelf_items, weight_readings';
     RAISE NOTICE '📈 Views criadas: v_weight_summary, v_recent_readings, v_shelfs_detailed, v_popular_products';
     RAISE NOTICE '⚡ Triggers e funções configurados para sincronização automática';
-    RAISE NOTICE '🔗 Sistema de pratileiras totalmente integrado e funcional';
+    RAISE NOTICE '🔗 Sistema de Prateleiras totalmente integrado e funcional';
 END $$; 

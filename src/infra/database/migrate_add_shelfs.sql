@@ -1,6 +1,6 @@
 -- ================================
--- MIGRAÇÃO: ADICIONAR SISTEMA DE PRATILEIRAS
--- Script para adicionar tabelas de pratileiras a um banco existente
+-- MIGRAÇÃO: ADICIONAR SISTEMA DE PrateleiraS
+-- Script para adicionar tabelas de Prateleiras a um banco existente
 -- ================================
 
 -- ================================
@@ -11,7 +11,7 @@
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- ================================
--- CRIAR TABELA DE PRATILEIRAS
+-- CRIAR TABELA DE PrateleiraS
 -- ================================
 
 CREATE TABLE IF NOT EXISTS shelfs (
@@ -35,7 +35,7 @@ CREATE INDEX IF NOT EXISTS idx_shelfs_total_weight ON shelfs(total_weight);
 CREATE INDEX IF NOT EXISTS idx_shelfs_products_gin ON shelfs USING GIN (products);
 
 -- ================================
--- CRIAR TABELA DE ITENS DA PRATILEIRA
+-- CRIAR TABELA DE ITENS DA Prateleira
 -- ================================
 
 CREATE TABLE IF NOT EXISTS shelf_items (
@@ -64,7 +64,7 @@ CREATE INDEX IF NOT EXISTS idx_shelf_items_quantity ON shelf_items(quantity);
 
 DO $$
 BEGIN
-    -- Adicionar referência para pratileira nas leituras de peso
+    -- Adicionar referência para Prateleira nas leituras de peso
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
                    WHERE table_name = 'weight_readings' AND column_name = 'shelf_id') THEN
         ALTER TABLE weight_readings ADD COLUMN shelf_id UUID NULL REFERENCES shelfs(id);
@@ -79,7 +79,7 @@ END $$;
 -- FUNÇÕES PARA SINCRONIZAÇÃO AUTOMÁTICA
 -- ================================
 
--- Função para recalcular peso total da pratileira
+-- Função para recalcular peso total da Prateleira
 CREATE OR REPLACE FUNCTION update_shelf_total_weight()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -96,7 +96,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Função para sincronizar produtos JSON na pratileira
+-- Função para sincronizar produtos JSON na Prateleira
 CREATE OR REPLACE FUNCTION sync_shelf_products_json()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -129,7 +129,7 @@ $$ LANGUAGE plpgsql;
 -- TRIGGERS PARA SINCRONIZAÇÃO
 -- ================================
 
--- Triggers para atualizar updated_at das pratileiras
+-- Triggers para atualizar updated_at das Prateleiras
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_shelfs_updated_at') THEN
@@ -190,10 +190,10 @@ BEGIN
 END $$;
 
 -- ================================
--- VIEWS ESPECÍFICAS DAS PRATILEIRAS
+-- VIEWS ESPECÍFICAS DAS PrateleiraS
 -- ================================
 
--- View de pratileiras com detalhes completos
+-- View de Prateleiras com detalhes completos
 CREATE OR REPLACE VIEW v_shelfs_detailed AS
 SELECT 
     s.id,
@@ -215,7 +215,7 @@ FROM shelfs s
 LEFT JOIN shelf_items si ON si.shelf_id = s.id
 GROUP BY s.id, s.name, s.description, s.total_weight, s.max_capacity, s.location, s.is_active, s.created_at, s.updated_at;
 
--- View de produtos utilizados em pratileiras
+-- View de produtos utilizados em Prateleiras
 CREATE OR REPLACE VIEW v_shelf_products AS
 SELECT 
     p.id as product_id,
@@ -236,19 +236,19 @@ ORDER BY s.name, si.position NULLS LAST, p.name;
 -- COMENTÁRIOS PARA DOCUMENTAÇÃO
 -- ================================
 
-COMMENT ON TABLE shelfs IS 'Tabela de pratileiras do sistema com cálculo automático de peso';
-COMMENT ON COLUMN shelfs.name IS 'Nome único da pratileira';
-COMMENT ON COLUMN shelfs.description IS 'Descrição detalhada da pratileira';
+COMMENT ON TABLE shelfs IS 'Tabela de Prateleiras do sistema com cálculo automático de peso';
+COMMENT ON COLUMN shelfs.name IS 'Nome único da Prateleira';
+COMMENT ON COLUMN shelfs.description IS 'Descrição detalhada da Prateleira';
 COMMENT ON COLUMN shelfs.products IS 'JSON com produtos e quantidades (atualizado automaticamente)';
 COMMENT ON COLUMN shelfs.total_weight IS 'Peso total calculado automaticamente via triggers';
-COMMENT ON COLUMN shelfs.max_capacity IS 'Capacidade máxima da pratileira em gramas';
-COMMENT ON COLUMN shelfs.location IS 'Localização física da pratileira';
+COMMENT ON COLUMN shelfs.max_capacity IS 'Capacidade máxima da Prateleira em gramas';
+COMMENT ON COLUMN shelfs.location IS 'Localização física da Prateleira';
 
-COMMENT ON TABLE shelf_items IS 'Relacionamento entre pratileiras e produtos com cálculo automático';
-COMMENT ON COLUMN shelf_items.quantity IS 'Quantidade do produto na pratileira';
+COMMENT ON TABLE shelf_items IS 'Relacionamento entre Prateleiras e produtos com cálculo automático';
+COMMENT ON COLUMN shelf_items.quantity IS 'Quantidade do produto na Prateleira';
 COMMENT ON COLUMN shelf_items.unit_weight IS 'Peso unitário do produto (cópia do products.weight)';
 COMMENT ON COLUMN shelf_items.total_item_weight IS 'Peso total calculado (quantidade × peso unitário)';
-COMMENT ON COLUMN shelf_items.position IS 'Posição do produto na pratileira (ordem)';
+COMMENT ON COLUMN shelf_items.position IS 'Posição do produto na Prateleira (ordem)';
 
 -- ================================
 -- VERIFICAÇÃO FINAL
@@ -263,11 +263,11 @@ BEGIN
     SELECT COUNT(*) INTO item_count FROM shelf_items;
     
     RAISE NOTICE '================================';
-    RAISE NOTICE '✅ MIGRAÇÃO DE PRATILEIRAS CONCLUÍDA!';
+    RAISE NOTICE '✅ MIGRAÇÃO DE PrateleiraS CONCLUÍDA!';
     RAISE NOTICE '📊 Tabelas: shelfs, shelf_items';
     RAISE NOTICE '📈 Views: v_shelfs_detailed, v_shelf_products';
     RAISE NOTICE '⚡ Triggers: sincronização automática configurada';
-    RAISE NOTICE '📦 Pratileiras: % | Itens: %', shelf_count, item_count;
-    RAISE NOTICE '🚀 Sistema pronto para usar endpoints de pratileiras!';
+    RAISE NOTICE '📦 Prateleiras: % | Itens: %', shelf_count, item_count;
+    RAISE NOTICE '🚀 Sistema pronto para usar endpoints de Prateleiras!';
     RAISE NOTICE '================================';
 END $$; 

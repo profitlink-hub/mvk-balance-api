@@ -2,14 +2,14 @@
 
 ## 📋 Visão Geral
 
-Esta pasta contém os scripts SQL para criação e migração do banco de dados PostgreSQL do sistema MVK Balance, **incluindo o novo sistema de pratileiras**.
+Esta pasta contém os scripts SQL para criação e migração do banco de dados PostgreSQL do sistema MVK Balance, **incluindo o novo sistema de Prateleiras**.
 
 ## 📁 Arquivos Disponíveis
 
 ### **1. `create_tables.sql` (ORIGINAL)**
 - ✅ Script original com tabelas básicas
 - 📦 Inclui: `clients`, `products`, `weight_readings`
-- ❌ **NÃO inclui pratileiras**
+- ❌ **NÃO inclui Prateleiras**
 
 ### **2. `create_tables_complete.sql` (NOVO - COMPLETO)**
 - ✅ Script completo com **TODAS** as tabelas
@@ -20,7 +20,7 @@ Esta pasta contém os scripts SQL para criação e migração do banco de dados 
 
 ### **3. `migrate_add_shelfs.sql` (NOVO - MIGRAÇÃO)**
 - ✅ Script de migração para bancos existentes
-- 🔄 Adiciona apenas tabelas de pratileiras
+- 🔄 Adiciona apenas tabelas de Prateleiras
 - 🛡️ Seguro para executar em produção
 - 🎯 **RECOMENDADO para bancos já existentes**
 
@@ -38,10 +38,10 @@ cd mvk-balance-api
 npm run dev
 
 # O sistema automaticamente executará create_tables_complete.sql
-# ✅ Todas as tabelas serão criadas, incluindo pratileiras
+# ✅ Todas as tabelas serão criadas, incluindo Prateleiras
 ```
 
-### **🔄 Para Banco Existente (Adicionar Pratileiras)**
+### **🔄 Para Banco Existente (Adicionar Prateleiras)**
 
 #### **Opção 1: Via PostgreSQL CLI**
 ```bash
@@ -101,7 +101,7 @@ products          -- Produtos do sistema
 ├── expected_weight
 └── source
 
-shelfs            -- 🆕 PRATILEIRAS
+shelfs            -- 🆕 PrateleiraS
 ├── id (UUID)
 ├── name
 ├── description
@@ -110,7 +110,7 @@ shelfs            -- 🆕 PRATILEIRAS
 ├── max_capacity
 └── location
 
-shelf_items       -- 🆕 PRODUTOS NAS PRATILEIRAS
+shelf_items       -- 🆕 PRODUTOS NAS PrateleiraS
 ├── id (UUID)
 ├── shelf_id → shelfs(id)
 ├── product_id → products(id)
@@ -131,15 +131,15 @@ weight_readings   -- Leituras do Arduino
 ```sql
 v_weight_summary      -- Resumo de leituras por produto
 v_recent_readings     -- Leituras recentes
-v_shelfs_detailed     -- 🆕 Pratileiras com estatísticas
-v_shelf_products      -- 🆕 Produtos nas pratileiras
+v_shelfs_detailed     -- 🆕 Prateleiras com estatísticas
+v_shelf_products      -- 🆕 Produtos nas Prateleiras
 v_popular_products    -- 🆕 Produtos mais utilizados
 ```
 
 ### **⚡ Triggers Automáticos**
 
 - **Peso Total**: Recalculado automaticamente quando produtos são adicionados/removidos
-- **JSON Sync**: Campo `products` da pratileira sincronizado automaticamente
+- **JSON Sync**: Campo `products` da Prateleira sincronizado automaticamente
 - **Updated At**: Campos `updated_at` atualizados automaticamente
 
 ## 🧪 Testando a Integração
@@ -150,16 +150,16 @@ v_popular_products    -- 🆕 Produtos mais utilizados
 SELECT table_name FROM information_schema.tables 
 WHERE table_schema = 'public' ORDER BY table_name;
 
--- Verificar se pratileiras existem
-SELECT COUNT(*) as pratileiras FROM shelfs;
+-- Verificar se Prateleiras existem
+SELECT COUNT(*) as Prateleiras FROM shelfs;
 SELECT COUNT(*) as itens FROM shelf_items;
 ```
 
 ### **2. Testar Funcionalidade Básica**
 ```sql
--- Criar pratileira de teste
+-- Criar Prateleira de teste
 INSERT INTO shelfs (name, description) VALUES 
-('Teste API', 'Pratileira criada via SQL');
+('Teste API', 'Prateleira criada via SQL');
 
 -- Verificar se foi criada
 SELECT * FROM v_shelfs_detailed WHERE name = 'Teste API';
@@ -167,17 +167,17 @@ SELECT * FROM v_shelfs_detailed WHERE name = 'Teste API';
 
 ### **3. Testar Endpoints via cURL**
 ```bash
-# Listar pratileiras
+# Listar Prateleiras
 curl -X GET http://localhost:3000/shelfs \
   -H "x-client-id: web_client_001" \
   -H "x-client-secret: secret_web_2025"
 
-# Criar nova pratileira
+# Criar nova Prateleira
 curl -X POST http://localhost:3000/shelfs \
   -H "x-client-id: web_client_001" \
   -H "x-client-secret: secret_web_2025" \
   -H "Content-Type: application/json" \
-  -d '{"name":"Pratileira via API","description":"Teste"}'
+  -d '{"name":"Prateleira via API","description":"Teste"}'
 ```
 
 ## 🔧 Configurações
@@ -247,7 +247,7 @@ curl http://localhost:3000/health | jq '.database'
 
 1. ✅ **Scripts criados e testados**
 2. 🔄 **Executar migração em desenvolvimento**
-3. 🧪 **Testar endpoints de pratileiras**
+3. 🧪 **Testar endpoints de Prateleiras**
 4. 🚀 **Deploy em produção**
 5. 📊 **Monitorar performance**
 
@@ -255,7 +255,7 @@ curl http://localhost:3000/health | jq '.database'
 
 ## 📝 Resumo Executivo
 
-**✅ SISTEMA COMPLETO DE PRATILEIRAS IMPLEMENTADO**
+**✅ SISTEMA COMPLETO DE PrateleiraS IMPLEMENTADO**
 
 - 📁 **3 scripts** SQL criados
 - 🏗️ **Estrutura completa** de banco
@@ -264,4 +264,4 @@ curl http://localhost:3000/health | jq '.database'
 - 📈 **Views avançadas** para relatórios
 - 🛡️ **Compatibilidade total** com código existente
 
-**🚀 O sistema MVK Balance agora possui funcionalidade completa de pratileiras integrada ao banco de dados PostgreSQL!** 
+**🚀 O sistema MVK Balance agora possui funcionalidade completa de Prateleiras integrada ao banco de dados PostgreSQL!** 

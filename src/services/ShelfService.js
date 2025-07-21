@@ -7,18 +7,18 @@ class ShelfService {
     this.productRepository = new ProductRepository()
   }
 
-  // Criar pratileira
+  // Criar Prateleira
   async createShelf(shelfData) {
     try {
       // Validações de negócio
       if (!shelfData.name || shelfData.name.trim().length < 2) {
-        throw new Error('Nome da pratileira deve ter pelo menos 2 caracteres')
+        throw new Error('Nome da Prateleira deve ter pelo menos 2 caracteres')
       }
 
-      // Verificar se já existe pratileira com o mesmo nome
+      // Verificar se já existe Prateleira com o mesmo nome
       const existingShelf = await this.shelfRepository.findByName(shelfData.name)
       if (existingShelf) {
-        throw new Error('Já existe uma pratileira com este nome')
+        throw new Error('Já existe uma Prateleira com este nome')
       }
 
       // Preparar dados para criação
@@ -55,43 +55,43 @@ class ShelfService {
         createData.totalWeight = totalWeight
       }
 
-      // Criar pratileira
+      // Criar Prateleira
       const shelf = await this.shelfRepository.create(createData)
 
       return {
         success: true,
         data: shelf.toApiResponse(),
-        message: 'Pratileira criada com sucesso'
+        message: 'Prateleira criada com sucesso'
       }
     } catch (error) {
       console.error('Erro no ShelfService.createShelf:', error)
       return {
         success: false,
-        error: error.message || 'Erro ao criar pratileira'
+        error: error.message || 'Erro ao criar Prateleira'
       }
     }
   }
 
-  // Buscar todas as pratileiras
+  // Buscar todas as Prateleiras
   async getAllShelfs(filters = {}) {
     try {
       const shelfs = await this.shelfRepository.findAll(filters)
       
       // Preparar mensagem baseada no filtro
-      let message = 'Pratileiras encontradas'
+      let message = 'Prateleiras encontradas'
       if (shelfs.length === 0) {
         if (filters.status === 'active') {
-          message = 'Nenhuma pratileira ativa encontrada'
+          message = 'Nenhuma Prateleira ativa encontrada'
         } else if (filters.status === 'inactive') {
-          message = 'Nenhuma pratileira inativa encontrada'
+          message = 'Nenhuma Prateleira inativa encontrada'
         } else {
-          message = 'Nenhuma pratileira encontrada'
+          message = 'Nenhuma Prateleira encontrada'
         }
       } else {
         if (filters.status === 'active') {
-          message = 'Pratileiras ativas encontradas'
+          message = 'Prateleiras ativas encontradas'
         } else if (filters.status === 'inactive') {
-          message = 'Pratileiras inativas encontradas'
+          message = 'Prateleiras inativas encontradas'
         }
       }
       
@@ -106,12 +106,12 @@ class ShelfService {
       console.error('Erro no ShelfService.getAllShelfs:', error)
       return {
         success: false,
-        error: error.message || 'Erro ao buscar pratileiras'
+        error: error.message || 'Erro ao buscar Prateleiras'
       }
     }
   }
 
-  // Buscar produtos de uma pratileira específica
+  // Buscar produtos de uma Prateleira específica
   async getShelfProducts(shelfId) {
     try {
       const shelf = await this.shelfRepository.findById(shelfId)
@@ -119,7 +119,7 @@ class ShelfService {
       if (!shelf) {
         return {
           success: false,
-          error: 'Pratileira não encontrada'
+          error: 'Prateleira não encontrada'
         }
       }
 
@@ -132,18 +132,18 @@ class ShelfService {
           totalItems: shelf.getTotalItems(),
           totalWeight: shelf.totalWeight
         },
-        message: 'Produtos da pratileira encontrados'
+        message: 'Produtos da Prateleira encontrados'
       }
     } catch (error) {
       console.error('Erro no ShelfService.getShelfProducts:', error)
       return {
         success: false,
-        error: error.message || 'Erro ao buscar produtos da pratileira'
+        error: error.message || 'Erro ao buscar produtos da Prateleira'
       }
     }
   }
 
-  // Buscar pratileira por ID
+  // Buscar Prateleira por ID
   async getShelfById(id) {
     try {
       const shelf = await this.shelfRepository.findById(id)
@@ -151,25 +151,25 @@ class ShelfService {
       if (!shelf) {
         return {
           success: false,
-          error: 'Pratileira não encontrada'
+          error: 'Prateleira não encontrada'
         }
       }
 
       return {
         success: true,
         data: shelf.toApiResponse(),
-        message: 'Pratileira encontrada'
+        message: 'Prateleira encontrada'
       }
     } catch (error) {
       console.error('Erro no ShelfService.getShelfById:', error)
       return {
         success: false,
-        error: error.message || 'Erro ao buscar pratileira'
+        error: error.message || 'Erro ao buscar Prateleira'
       }
     }
   }
 
-  // Buscar pratileira por nome
+  // Buscar Prateleira por nome
   async getShelfByName(name) {
     try {
       const shelf = await this.shelfRepository.findByName(name)
@@ -177,46 +177,46 @@ class ShelfService {
       if (!shelf) {
         return {
           success: false,
-          error: 'Pratileira não encontrada'
+          error: 'Prateleira não encontrada'
         }
       }
 
       return {
         success: true,
         data: shelf.toApiResponse(),
-        message: 'Pratileira encontrada'
+        message: 'Prateleira encontrada'
       }
     } catch (error) {
       console.error('Erro no ShelfService.getShelfByName:', error)
       return {
         success: false,
-        error: error.message || 'Erro ao buscar pratileira'
+        error: error.message || 'Erro ao buscar Prateleira'
       }
     }
   }
 
-  // Atualizar pratileira
+  // Atualizar Prateleira
   async updateShelf(id, updateData) {
     try {
-      // Verificar se pratileira existe
+      // Verificar se Prateleira existe
       const existingShelf = await this.shelfRepository.findById(id)
       if (!existingShelf) {
         return {
           success: false,
-          error: 'Pratileira não encontrada'
+          error: 'Prateleira não encontrada'
         }
       }
 
       // Validar nome se fornecido
       if (updateData.name) {
         if (updateData.name.trim().length < 2) {
-          throw new Error('Nome da pratileira deve ter pelo menos 2 caracteres')
+          throw new Error('Nome da Prateleira deve ter pelo menos 2 caracteres')
         }
 
-        // Verificar se já existe outra pratileira com o mesmo nome
+        // Verificar se já existe outra Prateleira com o mesmo nome
         const shelfWithSameName = await this.shelfRepository.findByName(updateData.name)
         if (shelfWithSameName && shelfWithSameName.id !== id) {
-          throw new Error('Já existe uma pratileira com este nome')
+          throw new Error('Já existe uma Prateleira com este nome')
         }
       }
 
@@ -258,24 +258,24 @@ class ShelfService {
         updatePayload.totalWeight = totalWeight
       }
 
-      // Atualizar pratileira
+      // Atualizar Prateleira
       const updatedShelf = await this.shelfRepository.update(id, updatePayload)
 
       return {
         success: true,
         data: updatedShelf.toApiResponse(),
-        message: 'Pratileira atualizada com sucesso'
+        message: 'Prateleira atualizada com sucesso'
       }
     } catch (error) {
       console.error('Erro no ShelfService.updateShelf:', error)
       return {
         success: false,
-        error: error.message || 'Erro ao atualizar pratileira'
+        error: error.message || 'Erro ao atualizar Prateleira'
       }
     }
   }
 
-  // Deletar pratileira
+  // Deletar Prateleira
   async deleteShelf(id) {
     try {
       const deleted = await this.shelfRepository.delete(id)
@@ -283,32 +283,32 @@ class ShelfService {
       if (!deleted) {
         return {
           success: false,
-          error: 'Pratileira não encontrada'
+          error: 'Prateleira não encontrada'
         }
       }
 
       return {
         success: true,
-        message: 'Pratileira deletada com sucesso'
+        message: 'Prateleira deletada com sucesso'
       }
     } catch (error) {
       console.error('Erro no ShelfService.deleteShelf:', error)
       return {
         success: false,
-        error: error.message || 'Erro ao deletar pratileira'
+        error: error.message || 'Erro ao deletar Prateleira'
       }
     }
   }
 
-  // Adicionar produto à pratileira
+  // Adicionar produto à Prateleira
   async addProductToShelf(shelfId, productData) {
     try {
-      // Verificar se pratileira existe
+      // Verificar se Prateleira existe
       const shelf = await this.shelfRepository.findById(shelfId)
       if (!shelf) {
         return {
           success: false,
-          error: 'Pratileira não encontrada'
+          error: 'Prateleira não encontrada'
         }
       }
 
@@ -328,53 +328,53 @@ class ShelfService {
         quantity: productData.quantity
       }
 
-      // Adicionar produto à pratileira
+      // Adicionar produto à Prateleira
       const updatedShelf = await this.shelfRepository.addProduct(shelfId, productPayload)
 
       return {
         success: true,
         data: updatedShelf.toApiResponse(),
-        message: 'Produto adicionado à pratileira com sucesso'
+        message: 'Produto adicionado à Prateleira com sucesso'
       }
     } catch (error) {
       console.error('Erro no ShelfService.addProductToShelf:', error)
       return {
         success: false,
-        error: error.message || 'Erro ao adicionar produto à pratileira'
+        error: error.message || 'Erro ao adicionar produto à Prateleira'
       }
     }
   }
 
-  // Remover produto da pratileira
+  // Remover produto da Prateleira
   async removeProductFromShelf(shelfId, productId) {
     try {
-      // Verificar se pratileira existe
+      // Verificar se Prateleira existe
       const shelf = await this.shelfRepository.findById(shelfId)
       if (!shelf) {
         return {
           success: false,
-          error: 'Pratileira não encontrada'
+          error: 'Prateleira não encontrada'
         }
       }
 
-      // Remover produto da pratileira
+      // Remover produto da Prateleira
       const updatedShelf = await this.shelfRepository.removeProduct(shelfId, productId)
 
       return {
         success: true,
         data: updatedShelf.toApiResponse(),
-        message: 'Produto removido da pratileira com sucesso'
+        message: 'Produto removido da Prateleira com sucesso'
       }
     } catch (error) {
       console.error('Erro no ShelfService.removeProductFromShelf:', error)
       return {
         success: false,
-        error: error.message || 'Erro ao remover produto da pratileira'
+        error: error.message || 'Erro ao remover produto da Prateleira'
       }
     }
   }
 
-  // Buscar pratileiras com filtros
+  // Buscar Prateleiras com filtros
   async searchShelfs(filters) {
     try {
       const shelfs = await this.shelfRepository.findByFilters(filters)
@@ -384,18 +384,18 @@ class ShelfService {
         data: shelfs.map(shelf => shelf.toApiResponse()),
         count: shelfs.length,
         filters: filters,
-        message: shelfs.length > 0 ? 'Pratileiras encontradas' : 'Nenhuma pratileira encontrada com os filtros aplicados'
+        message: shelfs.length > 0 ? 'Prateleiras encontradas' : 'Nenhuma Prateleira encontrada com os filtros aplicados'
       }
     } catch (error) {
       console.error('Erro no ShelfService.searchShelfs:', error)
       return {
         success: false,
-        error: error.message || 'Erro ao buscar pratileiras'
+        error: error.message || 'Erro ao buscar Prateleiras'
       }
     }
   }
 
-  // Estatísticas das pratileiras
+  // Estatísticas das Prateleiras
   async getStatistics() {
     try {
       const statistics = await this.shelfRepository.getStatistics()
