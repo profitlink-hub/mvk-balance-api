@@ -417,6 +417,37 @@ BEGIN
 END $$;
 
 -- ================================
+-- TABELA DE CONFIGURAÇÃO DE REDE
+-- ================================
+
+CREATE TABLE IF NOT EXISTS network_config (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    ip VARCHAR(15) NOT NULL,
+    gateway VARCHAR(15) NOT NULL,
+    dns VARCHAR(15) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Índices para otimização
+CREATE INDEX IF NOT EXISTS idx_network_config_created_at ON network_config(created_at);
+
+-- Trigger para atualizar updated_at
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_network_config_updated_at') THEN
+        CREATE TRIGGER update_network_config_updated_at BEFORE UPDATE ON network_config
+            FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+END $$;
+
+-- Comentários para documentação
+COMMENT ON TABLE network_config IS 'Tabela de configurações de rede (IP, Gateway, DNS)';
+COMMENT ON COLUMN network_config.ip IS 'Endereço IP';
+COMMENT ON COLUMN network_config.gateway IS 'Gateway padrão';
+COMMENT ON COLUMN network_config.dns IS 'Servidor DNS';
+
+-- ================================
 -- FINALIZAÇÃO
 -- ================================
 
@@ -424,8 +455,9 @@ END $$;
 DO $$
 BEGIN
     RAISE NOTICE '✅ Script de criação completo executado com sucesso!';
-    RAISE NOTICE '📊 Tabelas criadas: clients, products, shelfs, shelf_items, weight_readings';
+    RAISE NOTICE '📊 Tabelas criadas: clients, products, shelfs, shelf_items, weight_readings, network_config';
     RAISE NOTICE '📈 Views criadas: v_weight_summary, v_recent_readings, v_shelfs_detailed, v_popular_products';
     RAISE NOTICE '⚡ Triggers e funções configurados para sincronização automática';
     RAISE NOTICE '🔗 Sistema de Prateleiras totalmente integrado e funcional';
+    RAISE NOTICE '🌐 Sistema de configuração de rede disponível';
 END $$; 

@@ -21,6 +21,7 @@ const WeightRoutes = require('./routes/WeightRoutes')
 const AuthRoutes = require('./routes/AuthRoutes')
 const ArduinoRoutes = require('./routes/ArduinoRoutes')
 const ShelfRoutes = require('./routes/ShelfRoutes')
+const NetworkRoutes = require('./routes/NetworkRoutes')
 
 class Server {
   constructor() {
@@ -305,6 +306,7 @@ class Server {
           weight: '/weight',
           arduino: '/arduino',
           shelfs: '/shelfs',
+          network: '/network',
           health: '/health (GET - status da API)',
           healthCheck: 'POST /health (Arduino test)',
           documentation: '/api-docs',
@@ -330,6 +332,7 @@ class Server {
     this.app.use('/weight', WeightRoutes)
     this.app.use('/arduino', ArduinoRoutes)
     this.app.use('/shelfs', ShelfRoutes)
+    this.app.use('/network', NetworkRoutes)
 
     // Rota de health check do Arduino (diretamente em /health)
     const ArduinoController = require('./controllers/ArduinoController')
@@ -431,6 +434,12 @@ class Server {
               'POST /arduino/weight-movement',
               'GET /arduino/status',
               'GET /arduino/info'
+            ],
+            network: [
+              'POST /network/config',
+              'GET /network/config/latest',
+              'GET /network/config',
+              'GET /network/config/:id'
             ]
           }
         },
@@ -453,7 +462,9 @@ class Server {
           'POST /auth/login',
           'GET /products',
           'POST /weight/readings',
-          'GET /arduino/info'
+          'GET /arduino/info',
+          'POST /network/config',
+          'GET /network/config/latest'
         ],
         timestamp: new Date().toISOString()
       })
